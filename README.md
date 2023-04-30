@@ -2,9 +2,10 @@
 Project for Minnehack 2023
 
 ## Inspiration
-_Bookend_ was inspired by Corey's wife, who happens to be a school teacher. She has hundreds of books that she borrows her students, which requires traceability as to which students have checked out which books.
+Bookend is an electronic library management tool aimed to make classroom library management easier for
+elementary school educators. Teachers typically have hundreds of books in their library, with many books lent out to their students at a time.
 
-Before _Bookend_, the system in place was a simple web page that used a Google Sheets spreadsheet to track all of the books!
+Some teachers use spreadsheets to keep track of their library, but constantly updating a spreadsheet is time-consuming and can lead to confusion.
 
 _Bookend_ is the much needed successor, providing a robust system for book tracking and putting an **end** to Google Sheet back-ends!
 
@@ -38,6 +39,3 @@ We're proud that we were able to put together a project like this with a new fra
 
 ## What we learned
 We learned that when we all start to get tired, it helps to begin pair programming, as it allows for one person to focus on code, while the other person can better grasp the problem being tackled.
-
-## What's next for Bookend
-Corey plans to deploy an instance of _Bookend_ for his wife, who has already gotten great use out of the previous prototype!
