@@ -195,7 +195,8 @@ def catalog(request):
                     | Book.objects.filter(authors__regex=query_regex)
                     | Book.objects.filter(categories__regex=query_regex)
                     | Book.objects.filter(isbn__regex=query_regex)
-                    )
+                    ).order_by("title")
+
             print(f"results: {results}")
             if len(results) > 0:
                 num_results = results.aggregate(Sum("quantity"))["quantity__sum"]
@@ -210,8 +211,9 @@ def catalog(request):
     else:
         num_results = 0
 
-    return render(request, "library/catalog.html", {"form": SearchForm(), "table":BookTable(Book.objects.all()),
-                  "num_results": num_results})
+    return render(request, "library/catalog.html", {"form": SearchForm(),
+                                                    "table":BookTable(Book.objects.all().order_by("title")),
+                                                    "num_results": num_results})
 
 def generate_report(request):
     book_df = pd.DataFrame()
