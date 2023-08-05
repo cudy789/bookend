@@ -267,41 +267,31 @@ def import_csv(request):
                     isbn = s_line[-3]
                     authors = s_line[-5:-3]
                     title = ",".join(str(e) for e in s_line[-6::-1][::-1])
-                    if not isbn.isnumeric():
-                        m_dict = {"title": title,
+
+                    book = Book.objects.filter(isbn=isbn)
+                    if len(book) > 0:
+                        print("book already in library")
+                        continue
+
+                    bookDict = ISBNLookup().lookup(isbn)
+                    time.sleep(3)
+
+                    if bookDict is None:
+                        bookDict = {"title": title,
                                   "authors": authors,
+                                  "isbn": isbn,
                                   "quantity": quantity,
                                   }
-                        Book(**m_dict).save()
                     else:
-                        bookDict = ISBNLookup().lookup(isbn)
-                        time.sleep(3)
+                        bookDict["title"] = title
+                        bookDict["authors"] = authors
+                        bookDict["isbn"] = isbn
+                        bookDict["quantity"] = quantity
 
-                        if bookDict is None:
-                            bookDict = {"title": title,
-                                      "authors": authors,
-                                      "isbn": isbn,
-                                      "quantity": quantity,
-                                      }
-                        else:
-                            bookDict["title"] = title
-                            bookDict["authors"] = authors
-                            bookDict["isbn"] = isbn
-                            bookDict["quantity"] = quantity
-
-                        book = Book.objects.filter(isbn=isbn)
-                        if len(book) == 0:
-                            book = Book(**bookDict)
-                            # messages.info(request, "Added {} to your library".format(bookDict["title"]))
-                            book.quantity = quantity
-                            book.save()
-                        else:
-                            book[0].quantity = quantity
-                            book[0].save()
-                            # messages.info(request,"You now have {} copies of {}".format(book[0].quantity, book[0].title))
-
-
-
+                    book = Book(**bookDict)
+                    # messages.info(request, "Added {} to your library".format(bookDict["title"]))
+                    book.quantity = quantity
+                    book.save()
 
                 # return redirect(request, "library/import-csv")
         else:
