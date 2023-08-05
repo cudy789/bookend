@@ -37,14 +37,13 @@ class CategoriesColumn(tables.Column):
 class BookTable(tables.Table):
     thumbnail = ImageColumn('Cover')
     authors = AuthorColumn('Authors')
-    categories = CategoriesColumn('Categories')
     class Meta:
         model = Book
         attrs = {"class": "table",
                  'thead': {
                      'class': 'thead-dark'
                  }}
-        fields = ("thumbnail", "title", "authors", "categories", "quantity", "checkedOut", "isbn")
+        fields = ("thumbnail", "title", "authors", "quantity", "checkedOut", "isbn")
 
 class UserBookTable(tables.Table):
     thumbnail = ImageColumn('Thumbnail')
