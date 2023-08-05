@@ -3,6 +3,7 @@ from isbnlookup.isbnlookup import ISBNLookup
 from django.contrib import messages
 from .forms import *
 from django.http import FileResponse
+from django.db.models import Count
 
 from django_tables2 import SingleTableView, LazyPaginator
 from library.tables import BookTable, UserBookTable, UserTable
@@ -16,6 +17,7 @@ class MyTableClass(SingleTableView):
     table_class = BookTable
     queryset = Book.objects.all()
     template_name = "tables/book-catalog.html"
+    SingleTableView.table_pagination = False
 
 class UserTableClass(SingleTableView):
     table_class = UserTable
@@ -65,8 +67,8 @@ def user_books(request):
 
     return render(request, "library/user-books.html", {"form": ViewUserBooksForm()})
 
-def library(request):
-    return render(request, "library/library.html")
+# def library(request):
+#     return render(request, "library/library.html")
 
 def new_book(request):
     return render(request, "library/new-book.html", {"ISBNForm": ISBNAddBookForm(), "manualForm": ManualAddBookForm()})
@@ -179,20 +181,29 @@ def check_out(request):
     print("redirecting to home")
     return redirect("home")
 
-def search_library(request):
+def catalog(request):
     form = SearchForm(request.POST)
     if request.method == "POST":
         if form.is_valid():
-            raw = form.cleaned_data['title']
+            raw = form.cleaned_data['terms']
             query = ''
             for ch in raw:
                 query += '[' + ch.upper() + ch.lower() + ']'
             query_regex = r'.*' + query + r'.*'
-            results = Book.objects.filter(title__regex=query_regex)
-            return render(request, "library/search.html", {"form": form,
-                                                           "table": BookTable(results)})
+            results = (
+                    Book.objects.filter(title__regex=query_regex)
+                    | Book.objects.filter(authors__regex=query_regex)
+                    | Book.objects.filter(categories__regex=query_regex)
+                    | Book.objects.filter(isbn__regex=query_regex)
+                    )
+            num_results = results.values("quantity").annotate(num_results=Count("quantity"))[0]["num_results"]
+            return render(request, "library/catalog.html", {"form": form,
+                                                           "table": BookTable(results),
+                                                            "num_results": num_results
+                                                            })
 
-    return render(request, "library/search.html", {"form": SearchForm()})
+    return render(request, "library/catalog.html", {"form": SearchForm(), "table":BookTable(Book.objects.all()),
+                  "num_results": Book.objects.all().values("quantity").annotate(num_results=Count("quantity"))[0]["num_results"]})
 
 
 def generate_report(request):

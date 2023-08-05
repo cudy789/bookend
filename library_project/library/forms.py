@@ -21,6 +21,7 @@ class ISBNAddBookForm(ModelForm):
         labels = {
             "isbn": "ISBN"
         }
+        widgets = {"isbn": forms.TextInput(attrs={'autofocus': True})}
 
 class CheckInForm(forms.Form):
     card_id = forms.CharField(label="Library Card Number")
@@ -53,6 +54,9 @@ class UploadFileForm(forms.Form):
     file = forms.FileField()
 
 class SearchForm(forms.Form):
-    title = forms.CharField(label="Book Title")
+    terms = forms.CharField(label="Search terms", required=False, widget=forms.TextInput(attrs={'autofocus': True}))
     class Meta:
-        fields = ["query"]
+        fields = ("query")
+        labels = {
+            "query": "title, author, category, ISBN"
+        }

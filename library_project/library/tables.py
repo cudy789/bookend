@@ -20,16 +20,31 @@ class AuthorColumn(tables.Column):
         else:
             return res
 
+class CategoriesColumn(tables.Column):
+    def render(self, value):
+        res = ''
+        for category in value:
+            if type(category) is list and len(category) > 0:
+                category = category[0]
+                print(category)
+            res += str(category) + ', '
+
+        if len(res) > 0 and res[:-2] == ", ":
+            return res[:-1]
+        else:
+            return res
+
 class BookTable(tables.Table):
-    thumbnail = ImageColumn('Thumbnail')
+    thumbnail = ImageColumn('Cover')
     authors = AuthorColumn('Authors')
+    categories = CategoriesColumn('Categories')
     class Meta:
         model = Book
         attrs = {"class": "table",
                  'thead': {
                      'class': 'thead-dark'
                  }}
-        fields = ("thumbnail", "title", "authors", "quantity")
+        fields = ("thumbnail", "title", "authors", "categories", "quantity", "isbn")
 
 class UserBookTable(tables.Table):
     thumbnail = ImageColumn('Thumbnail')

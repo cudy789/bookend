@@ -139,3 +139,6 @@ GitHub.sublime-settings
 .history
 
 library_project/imported_data.csv
+library_project/cert.key
+library_project/cert.crt
+library_project/library/migrations

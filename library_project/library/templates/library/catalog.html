@@ -3,7 +3,7 @@
 {% load django_bootstrap5 %}
 {% load django_tables2 %}
 
-{% block title %}Search{% endblock %}
+{% block title %}Library Catalog{% endblock %}
 
 {% block content %}
 <link rel="stylesheet" href="{% static 'website/background.css' %}">
@@ -13,16 +13,22 @@
 	<div class="col-2"></div>
 	<div class="col-8 text-center">
 		
-		<h1>Search for a book</h1>
+		<h1>Library Catalog</h1>
 
-		<form method="post" action="/library/search" class="form">
+		<form method="post" action="/library/catalog" class="form">
 			{% csrf_token %}
         	{% bootstrap_form form %}
-			{% bootstrap_button button_type="submit" content="Submit" %}
+			{% bootstrap_button button_type="submit" content="Search" %}
+            {%  if num_results %}
+                <br><br>
+            Number of copies: {{ num_results }}
+            {%  endif %}
 		</form>
 
 	</div>
-
+<div>
+    <br>
+</div>
 {% if table %}
 {% render_table table %}
 {% endif %}
