@@ -3,7 +3,7 @@ from isbnlookup.isbnlookup import ISBNLookup
 from django.contrib import messages
 from .forms import *
 from django.http import FileResponse
-from django.db.models import Count
+from django.db.models import Sum
 
 from django_tables2 import SingleTableView, LazyPaginator
 from library.tables import BookTable, UserBookTable, UserTable
@@ -198,7 +198,7 @@ def catalog(request):
                     )
             print(f"results: {results}")
             if len(results) > 0:
-                num_results = results.values("quantity").annotate(num_results=Count("quantity"))[0]["num_results"]
+                num_results = results.aggregate(Sum("quantity"))["quantity__sum"]
             else:
                 num_results = 0
             return render(request, "library/catalog.html", {"form": form,
@@ -206,7 +206,7 @@ def catalog(request):
                                                             "num_results": num_results
                                                             })
     if len(Book.objects.all()) > 0:
-        num_results = Book.objects.all().values("quantity").annotate(num_results=Count("quantity"))[0]["num_results"]
+        num_results = Book.objects.all().aggregate(Sum("quantity"))["quantity__sum"]
     else:
         num_results = 0
 
