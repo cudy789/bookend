@@ -285,10 +285,10 @@ def import_csv(request):
                         if len(book) == 0:
                             book = Book(**bookDict)
                             # messages.info(request, "Added {} to your library".format(bookDict["title"]))
-                            book.quantity = 1
+                            book.quantity = quantity
                             book.save()
                         else:
-                            book[0].quantity += 1
+                            book[0].quantity += quantity
                             book[0].save()
                             # messages.info(request,"You now have {} copies of {}".format(book[0].quantity, book[0].title))
 
