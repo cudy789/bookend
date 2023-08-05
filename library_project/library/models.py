@@ -37,6 +37,12 @@ class Book(models.Model):
                                        MinValueValidator(0)
                                    ],
                                    blank=True, null=True)
+    checkedOut = models.IntegerField(default=0,
+                                     verbose_name="Checked Out",
+                                     validators=[
+                                         MinValueValidator(0)
+                                     ],
+                                     blank=True, null=True)
 
 class User(models.Model):
     name = models.CharField(max_length=100)

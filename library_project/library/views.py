@@ -132,7 +132,7 @@ def check_in(request):
                     if mUser.isbns.__contains__(checkInForm.cleaned_data["isbn"]):
                         mUser.isbns.remove(mBook.isbn)
                         mUser.save()
-                        mBook.quantity += 1
+                        mBook.checkedOut -= 1
                         mBook.save()
                         messages.info(request, "Returned {}".format(mBook.title))
                         print("Returned {}".format(mBook.title))
@@ -164,7 +164,7 @@ def check_out(request):
                     if len(userList) > 0:
                         userList[0].isbns += [checkOutForm.cleaned_data["isbn"]]
                         userList[0].save()
-                        desiredBookList[0].quantity -= 1
+                        desiredBookList[0].checkedOut += 1
                         desiredBookList[0].save()
                         messages.info(request, "Checkout {} to {}".format(desiredBookList[0].title, userList[0].name))
                         print("Checkout {} to {}".format(desiredBookList[0].title, userList[0].name))
@@ -196,15 +196,22 @@ def catalog(request):
                     | Book.objects.filter(categories__regex=query_regex)
                     | Book.objects.filter(isbn__regex=query_regex)
                     )
-            num_results = results.values("quantity").annotate(num_results=Count("quantity"))[0]["num_results"]
+            print(f"results: {results}")
+            if len(results) > 0:
+                num_results = results.values("quantity").annotate(num_results=Count("quantity"))[0]["num_results"]
+            else:
+                num_results = 0
             return render(request, "library/catalog.html", {"form": form,
                                                            "table": BookTable(results),
                                                             "num_results": num_results
                                                             })
+    if len(Book.objects.all()) > 0:
+        num_results = Book.objects.all().values("quantity").annotate(num_results=Count("quantity"))[0]["num_results"]
+    else:
+        num_results = 0
 
     return render(request, "library/catalog.html", {"form": SearchForm(), "table":BookTable(Book.objects.all()),
-                  "num_results": Book.objects.all().values("quantity").annotate(num_results=Count("quantity"))[0]["num_results"]})
-
+                  "num_results": num_results})
 
 def generate_report(request):
     book_df = pd.DataFrame()

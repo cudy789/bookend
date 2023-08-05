@@ -44,7 +44,7 @@ class BookTable(tables.Table):
                  'thead': {
                      'class': 'thead-dark'
                  }}
-        fields = ("thumbnail", "title", "authors", "categories", "quantity", "isbn")
+        fields = ("thumbnail", "title", "authors", "categories", "quantity", "checkedOut", "isbn")
 
 class UserBookTable(tables.Table):
     thumbnail = ImageColumn('Thumbnail')
