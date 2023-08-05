@@ -262,12 +262,14 @@ def import_csv(request):
                     if not s_line[4].isnumeric() or int(s_line[4]) > 100:
                         quantity=1
                     else:
-                        quantity = s_line[4]
+                        quantity = s_line[-1]
 
-                    isbn = s_line[3]
+                    isbn = s_line[-2]
+                    authors = s_line[-4:-2]
+                    title = s_line[-5::-1][::-1]
                     if not isbn.isnumeric():
-                        m_dict = {"title": s_line[0],
-                                  "authors": s_line[1:3],
+                        m_dict = {"title": title,
+                                  "authors": authors,
                                   "quantity": quantity,
                                   }
                         Book(**m_dict).save()
@@ -282,8 +284,8 @@ def import_csv(request):
                                       "quantity": quantity,
                                       }
                         else:
-                            bookDict["title"] = s_line[0]
-                            bookDict["authors"] = s_line[1:3]
+                            bookDict["title"] = title
+                            bookDict["authors"] = authors
                             bookDict["isbn"] = isbn
                             bookDict["quantity"] = quantity
 
