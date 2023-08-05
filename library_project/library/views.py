@@ -255,18 +255,18 @@ def import_csv(request):
                 m_csv.readline()
                 m_csv.readline()
                 for line in m_csv:
-                    s_line = line.split(",")
-                    print(s_line[0])
+                    s_line = line.strip().strip("\"").split(",")
+                    print(f"s_line: {s_line}")
 
-                    print(s_line[4])
-                    if not s_line[4].isnumeric() or int(s_line[4]) > 100:
+                    # print(s_line[4])
+                    if not s_line[-2].isnumeric() or int(s_line[-2]) > 100:
                         quantity=1
                     else:
-                        quantity = s_line[-1]
+                        quantity = s_line[-2]
 
-                    isbn = s_line[-2]
-                    authors = s_line[-4:-2]
-                    title = s_line[-5::-1][::-1]
+                    isbn = s_line[-3]
+                    authors = s_line[-5:-3]
+                    title = ",".join(str(e) for e in s_line[-6::-1][::-1])
                     if not isbn.isnumeric():
                         m_dict = {"title": title,
                                   "authors": authors,
@@ -278,8 +278,8 @@ def import_csv(request):
                         time.sleep(3)
 
                         if bookDict is None:
-                            bookDict = {"title": s_line[0],
-                                      "authors": s_line[1:3],
+                            bookDict = {"title": title,
+                                      "authors": authors,
                                       "isbn": isbn,
                                       "quantity": quantity,
                                       }
