@@ -281,6 +281,12 @@ def import_csv(request):
                                       "isbn": isbn,
                                       "quantity": quantity,
                                       }
+                        else:
+                            bookDict["title"] = s_line[0]
+                            bookDict["authors"] = s_line[1:3]
+                            bookDict["isbn"] = isbn
+                            bookDict["quantity"] = quantity
+
                         book = Book.objects.filter(isbn=isbn)
                         if len(book) == 0:
                             book = Book(**bookDict)
