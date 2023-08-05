@@ -255,7 +255,7 @@ def import_csv(request):
                         Book(**m_dict).save()
                     else:
                         bookDict = ISBNLookup().lookup(isbn)
-                        time.sleep(.75)
+                        time.sleep(3)
 
                         if bookDict is None:
                             bookDict = {"title": s_line[0],
