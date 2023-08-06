@@ -193,7 +193,6 @@ def catalog(request):
             results = (
                     Book.objects.filter(title__regex=query_regex)
                     | Book.objects.filter(authors__regex=query_regex)
-                    | Book.objects.filter(categories__regex=query_regex)
                     | Book.objects.filter(isbn__regex=query_regex)
                     ).order_by("title")
 
@@ -272,7 +271,8 @@ def import_csv(request):
 
                     book = Book.objects.filter(isbn=isbn)
                     if len(book) > 0:
-                        print("book already in library")
+                        print(f"book with ISBN {isbn} already in library")
+                        print(book)
                         continue
 
                     bookDict = ISBNLookup().lookup(isbn)
