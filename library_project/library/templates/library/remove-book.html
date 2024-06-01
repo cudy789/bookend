@@ -2,7 +2,7 @@
 {% load static %}
 {% load django_bootstrap5 %}
 
-{% block title %}Remove User{% endblock %}
+{% block title %}Remove Book{% endblock %}
 
 {% block content %}
 <link rel="stylesheet" href="{% static 'website/background.css' %}">
@@ -11,8 +11,8 @@
 <div class="row">
 	<div class="col-2"></div>
 	<div class="col-8 text-center">
-		
-		<h1>Remove a user</h1>
+
+		<h1>Remove a book</h1>
 
 		<form method="post" class="form">
 			{% csrf_token %}
@@ -31,7 +31,5 @@
 {% endblock %}
 
 {% block script %}
-var input = document.getElementById('barcode');
-input.focus();
-input.select();
+
 {% endblock %}

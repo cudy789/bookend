@@ -48,8 +48,10 @@ class CheckedOutBooksColumn(tables.Column):
         res = ''
         for i, isbn in enumerate(value):
             if type(isbn) is str and len(isbn) > 0:
-                # Books.objects.filter(isbn=isbn)
-                isbn = Book.objects.filter(isbn=isbn)[0].title
+                if len(Book.objects.filter(isbn=isbn)) > 0:
+                    isbn = Book.objects.filter(isbn=isbn)[0].title
+                else:
+                    isbn = f"invalidISBN:{isbn}"
                 if len(value) > 1 and i < len(value) - 1:
                     isbn += ", "
                 # isbn = "its a book!"

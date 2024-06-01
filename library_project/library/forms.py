@@ -23,6 +23,13 @@ class ISBNAddBookForm(ModelForm):
         }
         widgets = {"isbn": forms.TextInput(attrs={'autofocus': True})}
 
+class RemoveBookForm(ModelForm):
+    class Meta:
+        model = Book
+        fields = ("isbn",)
+        labels = {
+            "isbn": "ISBN"
+        }
 class CheckInForm(forms.Form):
     card_id = forms.CharField(label="Library Card Number",
                               widget=forms.TextInput(attrs={'id': 'card_id_checkin'}))

@@ -9,7 +9,7 @@ from django.core.exceptions import ValidationError
 
 class Book(models.Model):
     title = models.CharField(max_length=100)
-    tags = models.JSONField(blank=True, null=True)
+    tags = models.JSONField(default=list, blank=True, null=True)
     subtitle = models.CharField(max_length=300, blank=True, null=True)
     authors = models.JSONField(blank=True, null=True)
     publisher = models.CharField(max_length=100, blank=True, null=True)
@@ -47,5 +47,5 @@ class Book(models.Model):
 
 class User(models.Model):
     name = models.CharField(max_length=100)
-    isbns = models.JSONField(default=list)
+    isbns = models.JSONField(default=list, blank=True, null=True)
     card_id = models.CharField(max_length=50, verbose_name="Library Card Number")

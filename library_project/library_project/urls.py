@@ -29,6 +29,7 @@ urlpatterns = [
     path('users/<card_id>', user_details, name="userDetails"),
     # path('users/Corey', user_details, name="userDetails"),
     path('library/new', new_book, name="newBook"),
+    path('library/remove', remove_book, name="removeBook"),
     path('library/new/manual', new_book_manual, name="newBookManual"),
     path('library/new/isbn', new_book_isbn, name="newBookISBN"),
     path('library/book/<isbn>', book_details, name="bookDetails"),
