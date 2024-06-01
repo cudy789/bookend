@@ -77,7 +77,7 @@ class BookTable(tables.Table):
         fields = ("thumbnail", "title", "authors", "quantity", "checkedOut", "isbn")
 
 class UserBookTable(tables.Table):
-    thumbnail = ImageColumn('Thumbnail')
+    thumbnail = ImageColumn('Cover')
     authors = AuthorColumn('Authors')
     class Meta:
         model = Book

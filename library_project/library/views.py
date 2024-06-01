@@ -93,7 +93,7 @@ def user_books(request):
                 return render(request, "library/user-books.html", {"form": userBooksForm,
                                                                   "table": mTable })
             else:
-                messages.info(request, "User does not exist")
+                messages.info(request, f"No user found for ID {userBooksForm.cleaned_data['card_id']}")
         else:
             print("form is invalid")
 
