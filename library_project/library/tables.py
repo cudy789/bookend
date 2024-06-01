@@ -85,13 +85,10 @@ class UserBookTable(tables.Table):
                  'thead': {
                      'class': 'thead-dark'
                  }}
-        fields = ("thumbnail", "title", "authors")
+        fields = ("thumbnail", "title", "authors", "isbn")
 
 class UserTable(tables.Table):
     isbns = CheckedOutBooksColumn('Books')
-    
-
-
 
     class Meta:
         model = User
