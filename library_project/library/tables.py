@@ -9,16 +9,24 @@ class ImageColumn(tables.Column):
 class AuthorColumn(tables.Column):
     def render(self, value):
         res = ''
-        for author in value:
-            if type(author) is list and len(author) > 0:
-                author = author[0]
-                print(author)
-            res += str(author) + ', '
+        for i, author in enumerate(value):
+            if i == 0:
+                res += author
+            else:
+                res += ', ' + author
+        return res
 
-        if len(res) > 0 and res[:-2] == ", ":
-            return res[:-1]
-        else:
-            return res
+class TagsColumn(tables.Column):
+    def render(self, value):
+        res = ''
+        for i, tag in enumerate(value):
+            if i == 0:
+                res += tag
+            else:
+                res += ', ' + tag
+            print(i, tag)
+            # res += str(tag) + ', '
+        return res
 
 class CategoriesColumn(tables.Column):
     def render(self, value):
@@ -40,8 +48,10 @@ class CheckedOutBooksColumn(tables.Column):
         res = ''
         for i, isbn in enumerate(value):
             if type(isbn) is str and len(isbn) > 0:
-                # Books.objects.filter(isbn=isbn)
-                isbn = Book.objects.filter(isbn=isbn)[0].title
+                if len(Book.objects.filter(isbn=isbn)) > 0:
+                    isbn = Book.objects.filter(isbn=isbn)[0].title
+                else:
+                    isbn = f"invalidISBN:{isbn}"
                 if len(value) > 1 and i < len(value) - 1:
                     isbn += ", "
                 # isbn = "its a book!"
@@ -59,11 +69,10 @@ class UserColumnLink(tables.Column):
 class ISBNColumn(tables.Column):
     def render(self, value):
         res = ''
-        for isbn in value:
-            if type(isbn) is str and len(isbn) > 0:
-                # isbn = author[0]
-                print(isbn)
-            res += str(isbn) + ', '
+        if type(isbn) is str and len(isbn) > 0:
+            # isbn = author[0]
+            print(isbn)
+        res += str(isbn) + ', '
 
         if len(res) > 0 and res[:-2] == ", ":
             return res[:-1]
@@ -79,13 +88,14 @@ class BookTable(tables.Table):
     thumbnail = ImageColumn('Cover')
     authors = AuthorColumn('Authors')
     isbn = LinkISBNColumn('ISBN')
+    tags = TagsColumn('Tags')
     class Meta:
         model = Book
         attrs = {"class": "table",
                  'thead': {
                      'class': 'thead-dark'
                  }}
-        fields = ("thumbnail", "title", "authors", "quantity", "checkedOut", "isbn")
+        fields = ("thumbnail", "title", "authors", "tags", "quantity", "checkedOut", "isbn")
 
 class UserBookTable(tables.Table):
     thumbnail = ImageColumn('Cover')

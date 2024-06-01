@@ -29,6 +29,7 @@ urlpatterns = [
     path('users/<card_id>', user_details, name="userDetails"),
     # path('users/Corey', user_details, name="userDetails"),
     path('library/new', new_book, name="newBook"),
+    path('library/remove', remove_book, name="removeBook"),
     path('library/new/manual', new_book_manual, name="newBookManual"),
     path('library/new/isbn', new_book_isbn, name="newBookISBN"),
     path('library/book/<isbn>', book_details, name="bookDetails"),
@@ -41,6 +42,8 @@ urlpatterns = [
     path('library/books-report', books_report, name="booksReport"),
     path('library/users-report', users_report, name="usersReport"),
     path('library/import-csv', import_csv, name="importCSV"),
+    path('tools', tools, name="tools"),
+    path('tools/clean-author-fields', clean_author_fields, name="cleanAuthorFields"),
     path('api/book/<str:isbn>', post_new_book, name="postnewbook"),
 ]
 

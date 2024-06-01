@@ -25,6 +25,13 @@
     font: bold;
 }
 
+.button-small .buttons{
+    border-width: 2px;
+    min-height: 40px;
+    width: 200px;
+    font-size: 2em;
+}
+
 .textBox {
     text-align: center;
 

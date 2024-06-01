@@ -46,7 +46,7 @@ def user_details(request, card_id):
             if detailsUserForm.is_valid():
                 for mIsbn in detailsUserForm.cleaned_data['isbns']:
                     print(f"mIsbn: {mIsbn}")
-                    if len(Book.objects.filter(isbn=mIsbn)) == 0:
+                    if len(Book.objects.filter(isbn=mIsbn)) == 0 and mIsbn != "":
                         update_values = False
                         print("found invalid isbn, do not update")
             else:
@@ -128,6 +128,7 @@ def user_books(request):
                 mUser = existingUsers[0]
                 mBookList = []
                 for misbn in mUser.isbns:
+                    if len(Book.objects.filter(isbn=misbn)) > 0:
                         mBook = Book.objects.filter(isbn=misbn)[0]
                         mBookList.append(mBook)
 
@@ -201,7 +202,10 @@ def new_book_isbn(request):
                 if len(book) == 0:
                     book = Book(**bookDict)
                     messages.info(request, "Added {} to your library".format(bookDict["title"]))
+                    print(bookDict)
+                    print(f"Added {bookDict['title']} to your library")
                     book.quantity = 1
+                    book.authors = [a[0] for a in bookDict["authors"]]
                     book.save()
                 else:
                     book[0].quantity += 1
@@ -211,6 +215,23 @@ def new_book_isbn(request):
 
 
     return redirect("newBook", )
+
+def remove_book(request):
+    if request.method == "POST":
+        removeBookForm = RemoveBookForm(request.POST)
+        if removeBookForm.is_valid():
+            existingBooks = Book.objects.filter(isbn=removeBookForm.cleaned_data["isbn"])
+            if len(existingBooks) > 0:
+                mBook = existingBooks[0]
+                print(f"removed {mBook.title}")
+                messages.info(request, "Deleted {}".format(mBook.title))
+
+                mBook.delete()
+            else:
+                messages.info(request, "No book with ISBN {}".format(removeBookForm.cleaned_data["isbn"]))
+    removeBookForm = RemoveBookForm()
+    return render(request, "library/remove-book.html", {"form": removeBookForm })
+
 
 def check_in(request):
     if request.method == "POST":
@@ -291,6 +312,7 @@ def catalog(request):
                     Book.objects.filter(title__regex=query_regex)
                     | Book.objects.filter(authors__regex=query_regex)
                     | Book.objects.filter(isbn__regex=query_regex)
+                    | Book.objects.filter(tags__regex=query_regex)
                     ).order_by("title")
 
             print(f"results: {results}")
@@ -333,8 +355,13 @@ def report_helper():
             user_list.append(userDict)
         else:
             for index, misbn in enumerate(mUser.isbns):
-                mBook = Book.objects.filter(isbn=misbn)[0]
-                userDict = {"name": mUser.name, "card_id": mUser.card_id, "title": mBook.title, "isbn": mBook.isbn}
+                if len(mUser.isbns) == 0:
+                    userDict = {"name": mUser.name, "card_id": mUser.card_id, "title": "", "isbn": ""}
+                if len(Book.objects.filter(isbn=misbn)) > 0:
+                    mBook = Book.objects.filter(isbn=misbn)[0]
+                    userDict = {"name": mUser.name, "card_id": mUser.card_id, "title": mBook.title, "isbn": mBook.isbn}
+                else:
+                    userDict = {"name": mUser.name, "card_id": mUser.card_id, "title": "INVALID_ISBN", "isbn": misbn}
                 user_list.append(userDict)
 
             # temp_df = pd.DataFrame.from_dict({"name": [mUser.name], "card_id": [mUser.card_id], "title": [mBook.title]})
@@ -430,3 +457,18 @@ def import_csv(request):
 
     return render(request, "library/import-csv.html", {"form": UploadFileForm()})
 
+def tools(request):
+    return render(request, "library/tools.html",)
+
+def clean_author_fields(request):
+    for mBook in Book.objects.all():
+        list_authors = list(mBook.authors)
+        for author in list_authors:
+            if author == "":
+                mBook.authors.remove(author)
+                print(f"removing author {author}")
+        mBook.save()
+
+    messages.info(request, "Cleaned author field for all books")
+
+    return redirect("tools")
