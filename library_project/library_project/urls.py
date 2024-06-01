@@ -17,13 +17,16 @@ from django.contrib import admin
 from django.urls import path
 
 # from website.views import home
-from library.views import catalog, UserTableClass, home, new_book, new_book_isbn, new_book_manual, check_in, check_out, new_user, user_books, generate_report, import_csv
+from library.views import (catalog, UserTableClass, home, new_book, new_book_isbn, new_book_manual, check_in, check_out,
+                           new_user, user_books, import_csv, download_report, books_report, users_report, remove_user, checkinout_only)
 from api.views import post_new_book
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', home, name="home"),
+    path('lock', checkinout_only, name="checkinoutOnly"),
     path('newuser', new_user, name="newUser"),
+    path('removeuser', remove_user, name="removeUser"),
     path('library/new', new_book, name="newBook"),
     path('library/new/manual', new_book_manual, name="newBookManual"),
     path('library/new/isbn', new_book_isbn, name="newBookISBN"),
@@ -32,7 +35,11 @@ urlpatterns = [
     path('library/catalog', catalog, name="catalog"),
     path('users', UserTableClass.as_view(), name="users"),
     path('library/user-books', user_books, name="userBooks"),
-    path('library/generate-report', generate_report, name="generateReport"),
+    path('library/download-report', download_report, name="downloadReport"),
+    path('library/books-report', books_report, name="booksReport"),
+    path('library/users-report', users_report, name="usersReport"),
     path('library/import-csv', import_csv, name="importCSV"),
     path('api/book/<str:isbn>', post_new_book, name="postnewbook"),
 ]
+
+

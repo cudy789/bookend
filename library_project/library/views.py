@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from isbnlookup.isbnlookup import ISBNLookup
 from django.contrib import messages
 from .forms import *
-from django.http import FileResponse
+from django.http import FileResponse, HttpResponse
 from django.db.models import Sum
 
 from django_tables2 import SingleTableView, LazyPaginator
@@ -10,6 +10,7 @@ from library.tables import BookTable, UserBookTable, UserTable
 import pandas as pd
 import zipfile
 import time
+import csv
 
 
 # Create your views here.
@@ -23,11 +24,18 @@ class UserTableClass(SingleTableView):
     table_class = UserTable
     queryset = User.objects.all()
     template_name = "tables/user-catalog.html"
+    SingleTableView.table_pagination = False
+
 
 def home(request):
     checkInForm = CheckInForm()
     checkOutForm = CheckOutForm()
     return render(request, "library/home.html", {"checkInForm": checkInForm,
+                                                 "checkOutForm": checkOutForm})
+def checkinout_only(request):
+    checkInForm = CheckInForm()
+    checkOutForm = CheckOutForm()
+    return render(request, "library/checkinout-only.html", {"checkInForm": checkInForm,
                                                  "checkOutForm": checkOutForm})
 
 def new_user(request):
@@ -42,6 +50,31 @@ def new_user(request):
                 messages.info(request, "{}'s profile has been created".format(newUserForm.cleaned_data["name"]))
     newUserForm = NewUserForm()
     return render(request, "library/new-user.html", {"form": newUserForm })
+
+def remove_user(request):
+    if request.method == "POST":
+        removeUserForm = RemoveUserForm(request.POST)
+        if removeUserForm.is_valid():
+            existingUsers = User.objects.filter(card_id=removeUserForm.cleaned_data["card_id"])
+            if len(existingUsers) > 0:
+                mUser = existingUsers[0]
+                isbns_to_remove = list(mUser.isbns)
+                print(f"checked out books to remove: {isbns_to_remove}")
+                for mIsbn in isbns_to_remove:
+                    mBook = Book.objects.filter(isbn=mIsbn)[0]
+                    mBook.checkedOut -= 1
+                    mBook.save()
+                    mUser.isbns.remove(mIsbn)
+                    mUser.save()
+                    print(f"removed {mIsbn}. mUser isbns: {mUser.isbns}")
+
+                messages.info(request, "Deleted user {}".format(mUser.name))
+                print(f"deleted user {mUser.name}:{mUser.card_id}")
+                mUser.delete()
+            else:
+                messages.info(request, "No user with ID {}".format(removeUserForm.cleaned_data["card_id"]))
+    removeUserForm = RemoveUserForm()
+    return render(request, "library/remove-user.html", {"form": removeUserForm })
 
 def user_books(request):
     if request.method == "POST":
@@ -214,29 +247,61 @@ def catalog(request):
                                                     "table":BookTable(Book.objects.all().order_by("title")),
                                                     "num_results": num_results})
 
-def generate_report(request):
-    book_df = pd.DataFrame()
+def report_helper():
+    print("Running report helper")
+    book_list = []
+    book_keys = ("title", "authors", "isbn", "quantity", "checkedOut")
     for mBook in Book.objects.all():
-        book_df = pd.concat([book_df, pd.DataFrame.from_dict(mBook.__dict__)])
+        bookDict = {d: mBook.__dict__[d] for d in book_keys}
+        book_list.append(bookDict)
 
-    user_df = pd.DataFrame()
+    with open("all_books.csv", "w", newline="") as f:
+        dict_writer = csv.DictWriter(f, book_keys)
+        dict_writer.writeheader()
+        dict_writer.writerows(book_list)
+
+    user_list = []
+    user_keys = ("name", "card_id", "title")
     for mUser in User.objects.all():
+        print(f"Number of books checked out to {mUser.name}: {mUser.isbns}")
+        if len(mUser.isbns) == 0:
+            userDict = {"name": mUser.name, "card_id": mUser.card_id, "title": ""}
+            user_list.append(userDict)
+        else:
+            for index, misbn in enumerate(mUser.isbns):
+                mBook = Book.objects.filter(isbn=misbn)[0]
+                userDict = {"name": mUser.name, "card_id": mUser.card_id, "title": mBook.title}
+                user_list.append(userDict)
 
-        for index, misbn in enumerate(mUser.isbns):
-            mBook = Book.objects.filter(isbn=misbn)[0]
-            temp_df = pd.DataFrame.from_dict({"name": [mUser.name], "card_id": [mUser.card_id], "title": [mBook.title]})
-            print(temp_df)
-            user_df = pd.concat([user_df, temp_df])
+            # temp_df = pd.DataFrame.from_dict({"name": [mUser.name], "card_id": [mUser.card_id], "title": [mBook.title]})
+            # print(temp_df)
+            # user_df = pd.concat([user_df, temp_df])
 
+    with open("all_users.csv", "w", newline="") as f:
+        dict_writer = csv.DictWriter(f, user_keys)
+        dict_writer.writeheader()
+        dict_writer.writerows(user_list)
 
-    f_book_df = book_df.filter(items=["title", "authors", "publisher", "publishedDate", "quantity"])
-    f_book_df.to_csv("all_books.csv")
-    print(user_df)
-    user_df.to_csv("users.csv")
+    return book_list, user_list
+
+def books_report(request):
+    book_list, user_list = report_helper()
+
+    # return HttpResponse(book_list, content_type="application/csv")
+    return FileResponse(open("all_books.csv", "rb"), as_attachment=False)
+    # return render(str(book_df))
+
+def users_report(request):
+    book_list, user_list = report_helper()
+
+    return FileResponse(open("all_users.csv", "rb"), as_attachment=False)
+
+def download_report(request):
+    book_list, user_list = report_helper()
 
     with zipfile.ZipFile("report.zip", mode="w") as archive:
         archive.write("all_books.csv")
-        archive.write("users.csv")
+        archive.write("all_users.csv")
 
     return FileResponse(open("report.zip", "rb"), as_attachment=True)
 
