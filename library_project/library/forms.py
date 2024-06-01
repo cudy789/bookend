@@ -39,6 +39,13 @@ class CheckOutForm(forms.Form):
     class Meta:
         fields = ["card_id", "isbn",]
 
+class UserDetailsForm(ModelForm):
+    class Meta:
+        model = User
+        fields = ("name", "card_id", "isbns")
+        labels = {
+            "card_id": "Library Card Number"
+        }
 
 class NewUserForm(ModelForm):
     class Meta:
