@@ -50,6 +50,12 @@ class CheckedOutBooksColumn(tables.Column):
             return res[:-1]
         else:
             return res
+
+class UserColumnLink(tables.Column):
+    def render(self, value):
+        return format_html('<a href="users/{}">{}</a>', value, value)
+
+
 class ISBNColumn(tables.Column):
     def render(self, value):
         res = ''
@@ -64,10 +70,15 @@ class ISBNColumn(tables.Column):
         else:
             return res
 
+class LinkISBNColumn(tables.Column):
+    def render(self, value):
+        return format_html('<a href="book/{}">{}</a>', value, value)
+
 
 class BookTable(tables.Table):
     thumbnail = ImageColumn('Cover')
     authors = AuthorColumn('Authors')
+    isbn = LinkISBNColumn('ISBN')
     class Meta:
         model = Book
         attrs = {"class": "table",
@@ -89,6 +100,7 @@ class UserBookTable(tables.Table):
 
 class UserTable(tables.Table):
     isbns = CheckedOutBooksColumn('Books')
+    card_id = UserColumnLink('Card Number')
 
     class Meta:
         model = User

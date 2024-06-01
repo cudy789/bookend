@@ -37,6 +37,32 @@ def checkinout_only(request):
     checkOutForm = CheckOutForm()
     return render(request, "library/checkinout-only.html", {"checkInForm": checkInForm,
                                                  "checkOutForm": checkOutForm})
+def user_details(request, card_id):
+    if len(User.objects.filter(card_id=card_id)) > 0:
+        mUser = User.objects.filter(card_id=card_id)[0]
+        if request.method == "POST":
+            detailsUserForm = UserDetailsForm(request.POST, instance=mUser)
+            update_values = True
+            if detailsUserForm.is_valid():
+                for mIsbn in detailsUserForm.cleaned_data['isbns']:
+                    print(f"mIsbn: {mIsbn}")
+                    if len(Book.objects.filter(isbn=mIsbn)) == 0:
+                        update_values = False
+                        print("found invalid isbn, do not update")
+            else:
+                update_values = False
+            if update_values:
+                detailsUserForm.save()
+                print("updated form!")
+                messages.info(request, "Updated info for card {}".format(card_id))
+            else:
+                messages.info(request, "Invalid form details, did not update card {}".format(card_id))
+
+        mUser = User.objects.filter(card_id=card_id)[0]
+        detailsUserForm = UserDetailsForm(instance=mUser)
+    else:
+        detailsUserForm = UserDetailsForm()
+    return render(request, "library/user-details.html", {"form": detailsUserForm})
 
 def new_user(request):
     if request.method == "POST":
@@ -61,9 +87,10 @@ def remove_user(request):
                 isbns_to_remove = list(mUser.isbns)
                 print(f"checked out books to remove: {isbns_to_remove}")
                 for mIsbn in isbns_to_remove:
-                    mBook = Book.objects.filter(isbn=mIsbn)[0]
-                    mBook.checkedOut -= 1
-                    mBook.save()
+                    if len(Book.objects.filter(isbn=mIsbn)) > 0:
+                        mBook = Book.objects.filter(isbn=mIsbn)[0]
+                        mBook.checkedOut -= 1
+                        mBook.save()
                     mUser.isbns.remove(mIsbn)
                     mUser.save()
                     print(f"removed {mIsbn}. mUser isbns: {mUser.isbns}")
@@ -76,6 +103,22 @@ def remove_user(request):
     removeUserForm = RemoveUserForm()
     return render(request, "library/remove-user.html", {"form": removeUserForm })
 
+# def all_users(request):
+#     users_list = []
+#     for mUser in User.objects:
+#         books_list = []
+#
+#         for mIsbn in mUser.isbns:
+#             if len(Book.objects.filter(isbn=mIsbn)) > 0:
+#                 print(f"this is > 0: {Book.objects.filter(isbn=mIsbn)}")
+#                 mBook = Book.objects.filter(isbn=mIsbn)[0]
+#                 books_list.append(mBook)
+#             else:
+#                 mUser.isbns.remove(mIsbn)
+#                 mUser.save()
+
+
+
 def user_books(request):
     if request.method == "POST":
         userBooksForm = ViewUserBooksForm(request.POST)
@@ -85,8 +128,8 @@ def user_books(request):
                 mUser = existingUsers[0]
                 mBookList = []
                 for misbn in mUser.isbns:
-                    mBook = Book.objects.filter(isbn=misbn)[0]
-                    mBookList.append(mBook)
+                        mBook = Book.objects.filter(isbn=misbn)[0]
+                        mBookList.append(mBook)
 
                 mTable = UserBookTable(mBookList)
 
@@ -122,6 +165,27 @@ def new_book_manual(request):
                 messages.info(request, "Added {} to your library".format(bookForm.cleaned_data["title"]))
 
     return redirect("newBook",)
+
+def book_details(request, isbn):
+    if len(Book.objects.filter(isbn=isbn)) > 0:
+        mBook = Book.objects.filter(isbn=isbn)[0]
+
+        if request.method == "POST":
+            detailsBookForm = ManualAddBookForm(request.POST, instance=mBook)
+            if detailsBookForm.is_valid():
+                print(f"updated {detailsBookForm.cleaned_data['title']}")
+                detailsBookForm.save()
+                messages.info(request, "Updated info for {}".format(detailsBookForm.cleaned_data["title"]))
+            else:
+                messages.info(request, "Invalid data for {}, did not update".format(detailsBookForm.cleaned_data["title"]))
+
+        mBook = Book.objects.filter(isbn=isbn)[0]
+        detailsBookForm = ManualAddBookForm(instance=mBook)
+    else:
+        detailsBookForm = ManualAddBookForm()
+
+    return render(request, "library/book-details.html", {"form": detailsBookForm})
+
 
 def new_book_isbn(request):
     if request.method == "POST":

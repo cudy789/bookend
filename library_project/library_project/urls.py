@@ -17,19 +17,21 @@ from django.contrib import admin
 from django.urls import path
 
 # from website.views import home
-from library.views import (catalog, UserTableClass, home, new_book, new_book_isbn, new_book_manual, check_in, check_out,
-                           new_user, user_books, import_csv, download_report, books_report, users_report, remove_user, checkinout_only)
+from library.views import *
 from api.views import post_new_book
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', home, name="home"),
-    path('lock', checkinout_only, name="checkinoutOnly"),
+    path('l', checkinout_only, name="checkinoutOnly"),
     path('newuser', new_user, name="newUser"),
     path('removeuser', remove_user, name="removeUser"),
+    path('users/<card_id>', user_details, name="userDetails"),
+    # path('users/Corey', user_details, name="userDetails"),
     path('library/new', new_book, name="newBook"),
     path('library/new/manual', new_book_manual, name="newBookManual"),
     path('library/new/isbn', new_book_isbn, name="newBookISBN"),
+    path('library/book/<isbn>', book_details, name="bookDetails"),
     path('library/check-in', check_in, name="checkIn"),
     path('library/check-out', check_out, name="checkOut"),
     path('library/catalog', catalog, name="catalog"),

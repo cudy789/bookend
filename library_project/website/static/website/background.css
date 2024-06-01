@@ -19,3 +19,6 @@ th > a {
 filter: invert(99%) sepia(39%) saturate(2433%) hue-rotate(17deg) brightness(89%) contrast(73%);
 margin-right: 10px;
 }
+.row {
+    margin-bottom: 125px;
+}
