@@ -261,16 +261,16 @@ def report_helper():
         dict_writer.writerows(book_list)
 
     user_list = []
-    user_keys = ("name", "card_id", "title")
+    user_keys = ("name", "card_id", "title", "isbn")
     for mUser in User.objects.all():
         print(f"Number of books checked out to {mUser.name}: {mUser.isbns}")
         if len(mUser.isbns) == 0:
-            userDict = {"name": mUser.name, "card_id": mUser.card_id, "title": ""}
+            userDict = {"name": mUser.name, "card_id": mUser.card_id, "title": "", "isbn": ""}
             user_list.append(userDict)
         else:
             for index, misbn in enumerate(mUser.isbns):
                 mBook = Book.objects.filter(isbn=misbn)[0]
-                userDict = {"name": mUser.name, "card_id": mUser.card_id, "title": mBook.title}
+                userDict = {"name": mUser.name, "card_id": mUser.card_id, "title": mBook.title, "isbn": mBook.isbn}
                 user_list.append(userDict)
 
             # temp_df = pd.DataFrame.from_dict({"name": [mUser.name], "card_id": [mUser.card_id], "title": [mBook.title]})
