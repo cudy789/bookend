@@ -199,8 +199,8 @@ def check_out(request):
                         userList[0].save()
                         desiredBookList[0].checkedOut += 1
                         desiredBookList[0].save()
-                        messages.info(request, "Checkout {} to {}".format(desiredBookList[0].title, userList[0].name))
-                        print("Checkout {} to {}".format(desiredBookList[0].title, userList[0].name))
+                        messages.info(request, "{} checked out {}".format(userList[0].name, desiredBookList[0].title))
+                        print("{} checked out {}".format(userList[0].name, desiredBookList[0].title))
                     else:
                         messages.info(request, "Invalid card id")
                         print("invalid card id")
