@@ -9,6 +9,7 @@ from django.core.exceptions import ValidationError
 
 class Book(models.Model):
     title = models.CharField(max_length=100)
+    tags = models.JSONField(blank=True, null=True)
     subtitle = models.CharField(max_length=300, blank=True, null=True)
     authors = models.JSONField(blank=True, null=True)
     publisher = models.CharField(max_length=100, blank=True, null=True)

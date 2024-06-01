@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% load static %}
+{% load django_bootstrap5 %}
+
+<script type="text/javascript">
+    // Can't put javascript here, need to put it in base.html!
+</script>
+
+
+{% block title %}Tools{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'website/buttons.css' %}">
+<link rel="stylesheet" href="{% static 'website/background.css' %}">
+
+<div class="buttonContainer">
+  <button class="button-small launch-modal" data-toggle="modal" data-target="#confirmCleanAuthorsModal">
+    <div class="textBox">
+      Clean Author Fields
+    </div>
+  </button>
+</div>
+
+<!-- Left Checkout Modal -->
+<div class="modal fade" id="confirmCleanAuthorsModal" tabindex="-1" role="dialog" aria-labelledby="confirmCleanAuthorsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmCleanAuthorsModalLabel">Clean author fields?</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+          <form method="post" action="/tools/clean-author-fields" class="form">
+              {% csrf_token %}
+              <div class="modal-footer">
+              {% bootstrap_button button_type="submit" content="Confirm" %}
+              </div>
+          </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

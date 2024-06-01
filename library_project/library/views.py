@@ -291,6 +291,7 @@ def catalog(request):
                     Book.objects.filter(title__regex=query_regex)
                     | Book.objects.filter(authors__regex=query_regex)
                     | Book.objects.filter(isbn__regex=query_regex)
+                    | Book.objects.filter(tags__regex=query_regex)
                     ).order_by("title")
 
             print(f"results: {results}")
@@ -430,3 +431,18 @@ def import_csv(request):
 
     return render(request, "library/import-csv.html", {"form": UploadFileForm()})
 
+def tools(request):
+    return render(request, "library/tools.html",)
+
+def clean_author_fields(request):
+    for mBook in Book.objects.all():
+        list_authors = list(mBook.authors)
+        for author in list_authors:
+            if author == "":
+                mBook.authors.remove(author)
+                print(f"removing author {author}")
+        mBook.save()
+
+    messages.info(request, "Cleaned author field for all books")
+
+    return redirect("tools")

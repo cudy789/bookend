@@ -74,5 +74,5 @@ class SearchForm(forms.Form):
     class Meta:
         fields = ("query")
         labels = {
-            "query": "title, author, category, ISBN"
+            "query": "title, author, category, ISBN, tags"
         }
