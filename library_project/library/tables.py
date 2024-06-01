@@ -22,6 +22,7 @@ class AuthorColumn(tables.Column):
 
 class CategoriesColumn(tables.Column):
     def render(self, value):
+        print(f"value: {value}")
         res = ''
         for category in value:
             if type(category) is list and len(category) > 0:
@@ -33,6 +34,36 @@ class CategoriesColumn(tables.Column):
             return res[:-1]
         else:
             return res
+
+class CheckedOutBooksColumn(tables.Column):
+    def render(self, value):
+        res = ''
+        for i, isbn in enumerate(value):
+            if type(isbn) is str and len(isbn) > 0:
+                # Books.objects.filter(isbn=isbn)
+                isbn = Book.objects.filter(isbn=isbn)[0].title
+                if len(value) > 1 and i < len(value) - 1:
+                    isbn += ", "
+                # isbn = "its a book!"
+            res += str(isbn)
+        if len(res) > 0 and res[:-2] == ", ":
+            return res[:-1]
+        else:
+            return res
+class ISBNColumn(tables.Column):
+    def render(self, value):
+        res = ''
+        for isbn in value:
+            if type(isbn) is str and len(isbn) > 0:
+                # isbn = author[0]
+                print(isbn)
+            res += str(isbn) + ', '
+
+        if len(res) > 0 and res[:-2] == ", ":
+            return res[:-1]
+        else:
+            return res
+
 
 class BookTable(tables.Table):
     thumbnail = ImageColumn('Cover')
@@ -57,10 +88,15 @@ class UserBookTable(tables.Table):
         fields = ("thumbnail", "title", "authors")
 
 class UserTable(tables.Table):
+    isbns = CheckedOutBooksColumn('Books')
+    
+
+
+
     class Meta:
         model = User
         attrs = {"class": "table",
                  'thead': {
                      'class': 'thead-dark'
                  }}
-        fields = ("name", "card_id")
+        fields = ("name", "card_id", "isbns")

@@ -24,14 +24,17 @@ class ISBNAddBookForm(ModelForm):
         widgets = {"isbn": forms.TextInput(attrs={'autofocus': True})}
 
 class CheckInForm(forms.Form):
-    card_id = forms.CharField(label="Library Card Number")
+    card_id = forms.CharField(label="Library Card Number",
+                              widget=forms.TextInput(attrs={'id': 'card_id_checkin'}))
     isbn = forms.CharField(label="ISBN")
     class Meta:
         fields = ["card_id", "isbn",]
 
 
+
 class CheckOutForm(forms.Form):
-    card_id = forms.CharField(label="Library Card Number")
+    card_id = forms.CharField(label="Library Card Number",
+                              widget=forms.TextInput(attrs={'id': 'card_id_checkout'}))
     isbn = forms.CharField(label="ISBN")
     class Meta:
         fields = ["card_id", "isbn",]
@@ -44,7 +47,13 @@ class NewUserForm(ModelForm):
         labels = {
             "card_id": "Library Card Number"
         }
-
+class RemoveUserForm(ModelForm):
+    class Meta:
+        model = User
+        fields = ("card_id",)
+        labels = {
+            "card_id": "Library Card Number"
+        }
 class ViewUserBooksForm(forms.Form):
     card_id = forms.CharField(label="Library Card Number")
     class Meta:

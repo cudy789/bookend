@@ -32,6 +32,7 @@
           <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
             <li><a class="dropdown-item" href="/users">All Users</a></li>
             <li><a class="dropdown-item" href="/newuser">New User</a></li>
+            <li><a class="dropdown-item" href="/removeuser">Remove User</a></li>
             <li><a class="dropdown-item" href="/library/user-books">User Books</a></li>
           </ul>
         </div>
@@ -50,9 +51,22 @@
           </ul>
         </div>
       </li>
-      <li class="nav-item">
-        <a class="nav-link" href="/library/generate-report">Generate Report</a>
+      <li>
+        <div class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" id="dropdownMenuLink2" data-bs-toggle="dropdown" aria-expanded="false">
+            Reports
+          </a>
+
+          <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+            <li><a class="dropdown-item" href="/library/books-report">Books</a></li>
+            <li><a class="dropdown-item" href="/library/users-report">Users</a></li>
+            <li><a class="dropdown-item" href="/library/download-report">Download Zip</a></li>
+          </ul>
+        </div>
       </li>
+{#      <li class="nav-item">#}
+{#        <a class="nav-link" href="/library/generate-report">Generate Report</a>#}
+{#      </li>#}
     </ul>
   </nav>
   {% endblock %}
@@ -86,6 +100,12 @@
 </body>
 <script type="text/javascript">
   {% block script %}
+  $('#myCheckinModal').on('shown.bs.modal', function () {
+    $('#card_id_checkin').focus()
+  })
+  $('#myCheckoutModal').on('shown.bs.modal', function () {
+    $('#card_id_checkout').focus()
+  })
   {% endblock %}
 </script>
 </html>
