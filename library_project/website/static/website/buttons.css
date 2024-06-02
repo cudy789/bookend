@@ -34,6 +34,7 @@
 
 .textBox {
     text-align: center;
+    color: black;
 
     max-width: 300px;
 }
