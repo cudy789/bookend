@@ -105,10 +105,10 @@ $('#myModal').on('shown.bs.modal', function () {
       	<form action="/library/new/manual" method="post" class="form">
 			  {% csrf_token %}
 			  {% bootstrap_form manualForm %}
-	  	</form>
-      </div>
-      <div class="modal-footer">
-		  {% bootstrap_button button_type="submit" content="Submit" %}
+            <div class="modal-footer">
+                {% bootstrap_button button_type="submit" content="Submit" %}
+            </div>
+        </form>
       </div>
     </div>
   </div>

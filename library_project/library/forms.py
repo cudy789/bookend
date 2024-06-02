@@ -1,18 +1,30 @@
-from django.forms import ModelForm, DateInput, TextInput
+from django.forms import ModelForm, DateInput, TextInput, ImageField
 from django import forms
+from django.utils.html import format_html
+
 from .models import Book, User
 
 """
 All post forms should live here. Separate post forms for each view.
 """
+
+class PictureWidget(forms.widgets.Widget):
+    def render(self, name, value, attrs=None, **kwargs):
+        print(f"{name}, {value}, {attrs}, {kwargs}")
+        return format_html('<img src="{}" />', value)
+        # html =  Template("""<img src="$link"/>""")
+        # return mark_safe(html.substitute(link=value))
 class ManualAddBookForm(ModelForm):
     class Meta:
         model = Book
-        fields = "__all__"
-        widgets = {
-            "publishedDate": DateInput(attrs={"type:": "date"}),
-            "averageRating": TextInput(attrs={"type": "number", "min": "0", "max": "5"})
+        # fields = "__all__",
+        fields = ("title", "authors", "tags", "isbn", "quantity", "checkedOut")
+        labels = {
+            "authors": 'Authors - ["author 1", "author 2", ... ]',
+            "tags": 'Tags - ["tag 1", "tag 2", ... ]',
+            "isbn": "ISBN",
         }
+
 
 class ISBNAddBookForm(ModelForm):
     class Meta:
@@ -47,12 +59,33 @@ class CheckOutForm(forms.Form):
         fields = ["card_id", "isbn",]
 
 class UserDetailsForm(ModelForm):
+    card_id_image = ImageField(widget=PictureWidget(), label="")
+
     class Meta:
         model = User
-        fields = ("name", "card_id", "isbns")
+        fields = "__all__"
         labels = {
-            "card_id": "Library Card Number"
+            "card_id": "Library Card Number",
         }
+
+class BookDetailsForm(ModelForm):
+    isbn_image = ImageField(widget=PictureWidget(), label="")
+
+    class Meta:
+        model = Book
+        fields = "__all__"
+        widgets = {
+            "publishedDate": DateInput(attrs={"type:": "selectdate"}),
+            "averageRating": TextInput(attrs={"type": "number", "min": "0", "max": "5"}),
+
+        }
+        labels = {
+            "authors": 'Authors - ["author 1", "author 2", ... ]',
+            "tags": 'Tags - ["tag 1", "tag 2", ... ]',
+            "isbn": "ISBN",
+        }
+
+
 
 class NewUserForm(ModelForm):
     class Meta:

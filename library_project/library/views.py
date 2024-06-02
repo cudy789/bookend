@@ -1,9 +1,15 @@
+import barcode.errors
 from django.shortcuts import render, redirect
 from isbnlookup.isbnlookup import ISBNLookup
 from django.contrib import messages
 from .forms import *
 from django.http import FileResponse, HttpResponse
 from django.db.models import Sum
+from django.core.files import File
+
+from barcode import EAN13, ISBN13, ISBN10, Code39
+from barcode.writer import ImageWriter, SVGWriter
+from io import BytesIO
 
 from django_tables2 import SingleTableView, LazyPaginator
 from library.tables import BookTable, UserBookTable, UserTable
@@ -11,6 +17,7 @@ import pandas as pd
 import zipfile
 import time
 import csv
+import glob, os
 
 
 # Create your views here.
@@ -26,6 +33,34 @@ class UserTableClass(SingleTableView):
     template_name = "tables/user-catalog.html"
     SingleTableView.table_pagination = False
 
+def barcode_helper(m_number: str):
+    rv = BytesIO()
+
+    if len(m_number) == 13:
+        try:
+            ISBN13(str(m_number), writer=ImageWriter()).write(rv)
+        except Exception:
+            Code39(str(m_number), writer=ImageWriter(), add_checksum=False).write(rv)
+    elif len(m_number) == 10:
+        try:
+            ISBN13(str(m_number), writer=ImageWriter()).write(rv)
+        except Exception:
+            Code39(str(m_number), writer=ImageWriter(), add_checksum=False).write(rv)
+    else:
+        Code39(str(m_number), writer=ImageWriter(), add_checksum=False).write(rv)
+
+    return rv
+
+def update_isbn_image(mBook: Book):
+    mIsbn = mBook.isbn
+
+    rv = barcode_helper(mIsbn)
+    mBook.isbn_image.save(f"{mIsbn}.png", File(rv))
+
+def update_user_barcode_image(mUser: User):
+    userId = mUser.card_id
+    rv = barcode_helper(userId)
+    mUser.card_id_image.save(f"{userId}.png", File(rv))
 
 def home(request):
     checkInForm = CheckInForm()
@@ -53,12 +88,19 @@ def user_details(request, card_id):
                 update_values = False
             if update_values:
                 detailsUserForm.save()
+                mUser = User.objects.filter(card_id=detailsUserForm.cleaned_data["card_id"])[0]
+                update_user_barcode_image(mUser)
                 print("updated form!")
-                messages.info(request, "Updated info for card {}".format(card_id))
+                messages.info(request, "Updated info for card {}".format(detailsUserForm.cleaned_data["card_id"]))
             else:
                 messages.info(request, "Invalid form details, did not update card {}".format(card_id))
 
-        mUser = User.objects.filter(card_id=card_id)[0]
+            return redirect("users")
+
+        else:
+            mUser = User.objects.filter(card_id=card_id)[0]
+            print(f"get, returning form for {card_id}")
+
         detailsUserForm = UserDetailsForm(instance=mUser)
     else:
         detailsUserForm = UserDetailsForm()
@@ -73,6 +115,8 @@ def new_user(request):
                 messages.info(request, "User with Id: {} already exists".format(newUserForm.cleaned_data["card_id"]))
             else:
                 newUserForm.save()
+                mUser = User.objects.filter(card_id=newUserForm.cleaned_data["card_id"])[0]
+                update_user_barcode_image(mUser)
                 messages.info(request, "{}'s profile has been created".format(newUserForm.cleaned_data["name"]))
     newUserForm = NewUserForm()
     return render(request, "library/new-user.html", {"form": newUserForm })
@@ -155,7 +199,7 @@ def new_book_manual(request):
         bookForm = ManualAddBookForm(request.POST)
         if bookForm.is_valid():
             print(bookForm.cleaned_data["title"])
-            existingBookList = Book.objects.filter(title=bookForm.cleaned_data["title"])
+            existingBookList = Book.objects.filter(isbn=bookForm.cleaned_data["isbn"])
             if len(existingBookList) > 0:
                 mBook = existingBookList[0]
                 mBook.quantity += 1
@@ -163,30 +207,11 @@ def new_book_manual(request):
                 mBook.save()
             else:
                 bookForm.save()
+                mBook = Book.objects.filter(isbn=bookForm.cleaned_data["isbn"])[0]
+                update_isbn_image(mBook)
                 messages.info(request, "Added {} to your library".format(bookForm.cleaned_data["title"]))
 
     return redirect("newBook",)
-
-def book_details(request, isbn):
-    if len(Book.objects.filter(isbn=isbn)) > 0:
-        mBook = Book.objects.filter(isbn=isbn)[0]
-
-        if request.method == "POST":
-            detailsBookForm = ManualAddBookForm(request.POST, instance=mBook)
-            if detailsBookForm.is_valid():
-                print(f"updated {detailsBookForm.cleaned_data['title']}")
-                detailsBookForm.save()
-                messages.info(request, "Updated info for {}".format(detailsBookForm.cleaned_data["title"]))
-            else:
-                messages.info(request, "Invalid data for {}, did not update".format(detailsBookForm.cleaned_data["title"]))
-
-        mBook = Book.objects.filter(isbn=isbn)[0]
-        detailsBookForm = ManualAddBookForm(instance=mBook)
-    else:
-        detailsBookForm = ManualAddBookForm()
-
-    return render(request, "library/book-details.html", {"form": detailsBookForm})
-
 
 def new_book_isbn(request):
     if request.method == "POST":
@@ -207,12 +232,12 @@ def new_book_isbn(request):
                     book.quantity = 1
                     book.authors = [a[0] for a in bookDict["authors"]]
                     book.save()
+                    mBook = Book.objects.filter(isbn=book.isbn)[0]
+                    update_isbn_image(mBook)
                 else:
                     book[0].quantity += 1
                     book[0].save()
                     messages.info(request, "You now have {} copies of {}".format(book[0].quantity, book[0].title))
-
-
 
     return redirect("newBook", )
 
@@ -232,6 +257,27 @@ def remove_book(request):
     removeBookForm = RemoveBookForm()
     return render(request, "library/remove-book.html", {"form": removeBookForm })
 
+def book_details(request, isbn):
+    if len(Book.objects.filter(isbn=isbn)) > 0:
+        mBook = Book.objects.filter(isbn=isbn)[0]
+
+        if request.method == "POST":
+            detailsBookForm = BookDetailsForm(request.POST, instance=mBook)
+            if detailsBookForm.is_valid():
+                print(f"updated {detailsBookForm.cleaned_data['title']}")
+                detailsBookForm.save()
+                mBook = Book.objects.filter(isbn=detailsBookForm.cleaned_data['isbn'])[0]
+                update_isbn_image(mBook)
+                messages.info(request, "Updated info for {}".format(detailsBookForm.cleaned_data["title"]))
+            else:
+                messages.info(request, "Invalid data for {}, did not update".format(detailsBookForm.cleaned_data["title"]))
+
+        mBook = Book.objects.filter(isbn=isbn)[0]
+        detailsBookForm = BookDetailsForm(instance=mBook)
+    else:
+        detailsBookForm = BookDetailsForm()
+
+    return render(request, "library/book-details.html", {"form": detailsBookForm})
 
 def check_in(request):
     if request.method == "POST":
@@ -476,3 +522,23 @@ def clean_author_fields(request):
     messages.info(request, "Cleaned author field for all books")
 
     return redirect("tools")
+
+def generate_isbn_barcodes(request):
+    files = glob.glob('book_isbn_images/*')
+    for f in files:
+        os.remove(f)
+
+    for mBook in Book.objects.all():
+        update_isbn_image(mBook)
+
+    messages.info(request, "Generated ISBN barcodes for all books")
+
+    return redirect("tools")
+
+def book_isbn(request, filename):
+    with open(f"book_isbn_images/{filename}", "rb") as f:
+        return HttpResponse(f.read(), content_type="image/png")
+
+def user_card_image(request, filename):
+    with open(f"card_id_images/{filename}", "rb") as f:
+        return HttpResponse(f.read(), content_type="image/png")

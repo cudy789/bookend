@@ -33,6 +33,8 @@ urlpatterns = [
     path('library/new/manual', new_book_manual, name="newBookManual"),
     path('library/new/isbn', new_book_isbn, name="newBookISBN"),
     path('library/book/<isbn>', book_details, name="bookDetails"),
+    path('library/book/book_isbn_images/<str:filename>', book_isbn, name="bookISBN"),
+    path('users/card_id_images/<str:filename>', user_card_image, name="userCardImage"),
     path('library/check-in', check_in, name="checkIn"),
     path('library/check-out', check_out, name="checkOut"),
     path('library/catalog', catalog, name="catalog"),
@@ -44,6 +46,7 @@ urlpatterns = [
     path('library/import-csv', import_csv, name="importCSV"),
     path('tools', tools, name="tools"),
     path('tools/clean-author-fields', clean_author_fields, name="cleanAuthorFields"),
+    path('tools/generate-isbn-barcodes', generate_isbn_barcodes, name="generateIsbnBarcodes"),
     path('api/book/<str:isbn>', post_new_book, name="postnewbook"),
 ]
 

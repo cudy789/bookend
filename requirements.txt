@@ -8,3 +8,5 @@ tzdata
 django-extensions
 Werkzeug
 pyOpenSSL
+python-barcode
+pillow
