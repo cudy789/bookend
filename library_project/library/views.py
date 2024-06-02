@@ -301,6 +301,7 @@ def check_out(request):
 
 def catalog(request):
     form = SearchForm(request.POST)
+    ordered_by = 'title'
     if request.method == "POST":
         if form.is_valid():
             raw = form.cleaned_data['terms']
@@ -324,13 +325,16 @@ def catalog(request):
                                                            "table": BookTable(results),
                                                             "num_results": num_results
                                                             })
+    else:
+        ordered_by = request.GET.get('sort', 'title')
+        print(f"what is the sorted order? {ordered_by}")
     if len(Book.objects.all()) > 0:
         num_results = Book.objects.all().aggregate(Sum("quantity"))["quantity__sum"]
     else:
         num_results = 0
 
     return render(request, "library/catalog.html", {"form": SearchForm(),
-                                                    "table":BookTable(Book.objects.all().order_by("title")),
+                                                    "table":BookTable(Book.objects.all().order_by(ordered_by)),
                                                     "num_results": num_results})
 
 def report_helper():
