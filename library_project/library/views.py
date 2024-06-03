@@ -92,11 +92,11 @@ def user_details(request, card_id):
                 update_user_barcode_image(mUser)
                 print("updated form!")
                 messages.info(request, "Updated info for card {}".format(detailsUserForm.cleaned_data["card_id"]))
+                return redirect("userDetails", card_id=detailsUserForm.cleaned_data["card_id"])
             else:
                 messages.info(request, "Invalid form details, did not update card {}".format(card_id))
-
-            return redirect("users")
-
+                mUser = User.objects.filter(card_id=card_id)[0]
+                detailsUserForm = UserDetailsForm(instance=mUser)
         else:
             mUser = User.objects.filter(card_id=card_id)[0]
             print(f"get, returning form for {card_id}")
@@ -269,9 +269,9 @@ def book_details(request, isbn):
                 mBook = Book.objects.filter(isbn=detailsBookForm.cleaned_data['isbn'])[0]
                 update_isbn_image(mBook)
                 messages.info(request, "Updated info for {}".format(detailsBookForm.cleaned_data["title"]))
+                return redirect('bookDetails', isbn=detailsBookForm.cleaned_data["isbn"])
             else:
                 messages.info(request, "Invalid data for {}, did not update".format(detailsBookForm.cleaned_data["title"]))
-
         mBook = Book.objects.filter(isbn=isbn)[0]
         detailsBookForm = BookDetailsForm(instance=mBook)
     else:
@@ -303,10 +303,10 @@ def check_in(request):
                     else:
                         messages.info(request, "{} has not checked out {}".format(mUser.name, mBook.title))
                 else:
-                    messages.info(request, "Invalid card id")
+                    messages.info(request, "Invalid library card")
                     print("invalid card id")
             else:
-                messages.info(request, "Book with entered ISBN is not in your library")
+                messages.info(request, "Could not find ISBN")
                 print("book with entered ISBN is not in your library")
         else:
             print("form is invalid")

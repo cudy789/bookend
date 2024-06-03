@@ -12,6 +12,7 @@ class Book(models.Model):
     tags = models.JSONField(default=list, blank=True, null=True)
     authors = models.JSONField(default=list, blank=True, null=True)
     isbn = models.CharField(max_length=13, blank=True, null=True)
+    isbn_image = models.ImageField(blank=True, null=True, upload_to='book_isbn_images/')
     quantity = models.IntegerField(default=0,
                                    verbose_name="Copies",
                                    validators=[
@@ -24,7 +25,6 @@ class Book(models.Model):
                                          MinValueValidator(0)
                                      ],
                                      blank=True, null=True)
-    isbn_image = models.ImageField(blank=True, null=True, upload_to='book_isbn_images/')
     subtitle = models.CharField(max_length=300, blank=True, null=True)
     publisher = models.CharField(max_length=100, blank=True, null=True)
     publishedDate = models.CharField(max_length=20, blank=True, null=True)
