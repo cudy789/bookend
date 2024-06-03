@@ -42,6 +42,8 @@ class RemoveBookForm(ModelForm):
         labels = {
             "isbn": "ISBN"
         }
+        widgets = {"isbn": forms.TextInput(attrs={'autofocus': True})}
+
 class CheckInForm(forms.Form):
     card_id = forms.CharField(label="Library Card Number",
                               widget=forms.TextInput(attrs={'id': 'card_id_checkin'}))
@@ -94,6 +96,8 @@ class NewUserForm(ModelForm):
         labels = {
             "card_id": "Library Card Number"
         }
+        widgets = {"name": forms.TextInput(attrs={'autofocus': True})}
+
 class RemoveUserForm(ModelForm):
     class Meta:
         model = User
@@ -101,6 +105,8 @@ class RemoveUserForm(ModelForm):
         labels = {
             "card_id": "Library Card Number"
         }
+        widgets = {"card_id": forms.TextInput(attrs={'autofocus': True})}
+
 class ViewUserBooksForm(forms.Form):
     card_id = forms.CharField(label="Library Card Number")
     class Meta:

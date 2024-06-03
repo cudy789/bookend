@@ -333,12 +333,12 @@ def check_out(request):
                         messages.info(request, "{} checked out {}".format(userList[0].name, desiredBookList[0].title))
                         print("{} checked out {}".format(userList[0].name, desiredBookList[0].title))
                     else:
-                        messages.info(request, "Invalid card id")
+                        messages.info(request, "Invalid library card")
                         print("invalid card id")
                 else:
                     messages.info(request, "All copies of {} are already checked out".format(desiredBookList[0].title))
             else:
-                messages.info(request, "Book with entered ISBN is not in your library")
+                messages.info(request, "Could not find ISBN")
                 print("book with entered ISBN is not in your library")
         else:
             print("form is invalid")
