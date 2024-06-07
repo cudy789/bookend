@@ -27,13 +27,13 @@ The classroom-oriented library management software with rich features for teache
 
 Use a touch screen friendly interface to check in/out books
 <div align="center">
-    <img src="./res/main-page.png" width=65%>
+    <img src="./res/main-page.png" width=75%>
 </div>
 
 Students can use a USB barcode scanner to enter their library card number 
 and book ISBN without typing a single number
 <div align="center">
-    <img src="./res/checkout.png" width=65%>
+    <img src="./res/checkout.png" width=75%>
 </div>
 
 * Search your library catalog by title, author, user-defined tags, and ISBN
@@ -41,25 +41,25 @@ and book ISBN without typing a single number
 * Keep up to date with how many books are currently checked out
 * Browse auto-generated cover thumbnails from Google Books
 <div align="center">
-    <img src="./res/catalog.png" width=65%>
+    <img src="./res/catalog.png" width=75%>
 </div>
 
 Easily add books by ISBN with a USB barcode scanner. All book attributes are automatically populated by Google Books and can 
 be modified after a book has been added to the catalog. Manually add books that do not have an ISBN or are not listed on Google Books.
 <div align="center">
-    <img src="./res/add-book.png" width=65%>
+    <img src="./res/add-book.png" width=75%>
 </div>
 
 Straightforward interface for viewing users names, library card numbers, and books a user has checked out.
 <div align="center">
-    <img src="./res/all-users.png" width=65%>
+    <img src="./res/all-users.png" width=75%>
 </div>
 
 Built-in barcode generation for library card numbers and book ISBNs - handy for customized library cards and adding ISBN stickers to books!
 
 <div align="center">
-    <img src="./res/library-card-barcode.png" width=25%>
-    <img src="./res/isbn-barcode.png" width=25%>
+    <img src="./res/library-card-barcode.png" width=35%>
+    <img src="./res/isbn-barcode.png" width=35%>
 </div>
 
 .. and much, much more!
