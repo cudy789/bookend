@@ -3,7 +3,7 @@ while true; do
 
   docker pull rogueraptor7/bookend:latest;
 
-  docker run -d --name=bookend \
+  docker run -d --cpus="1.0" --memory="512m" --name=bookend \
     --rm -p 8080:8080 \
     rogueraptor7/bookend:latest;
 
