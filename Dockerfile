@@ -11,6 +11,8 @@ WORKDIR /app
 COPY ./library_project/ /app
 COPY ./requirements.txt /app
 
+RUN rm /app/db.sqlite3
+
 RUN pip3 install -r requirements.txt
 RUN python3 manage.py collectstatic --no-input
 

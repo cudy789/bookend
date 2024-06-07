@@ -4,5 +4,5 @@
 
 docker run -d --name=bookend --privileged \
   -v "${PWD}"/library_project/db.sqlite3:/app/db.sqlite3:rw \
-  --rm -p 80:80 \
+  --rm -p 8080:8080 \
   rogueraptor7/bookend:latest
