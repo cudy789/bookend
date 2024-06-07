@@ -13,14 +13,14 @@ The classroom-oriented library management software with rich features for teache
 
 <!-- TOC -->
 * [Bookend](#bookend)
-  * [Overview](#overview)
-  * [Interested? Try out the demo!](#interested-try-out-the-demo)
-  * [Get Bookend](#get-bookend)
-    * [Managed](#managed)
-    * [Self-hosted](#self-hosted)
-  * [All features](#all-features)
-  * [Instructions and tutorials](#instructions-and-tutorials)
-  * [Inspiration](#inspiration)
+* [Overview](#overview)
+* [Interested? Try out the demo!](#interested-try-out-the-demo)
+* [Get Bookend](#get-bookend)
+  * [Managed](#managed)
+  * [Self-hosted](#self-hosted)
+* [All features](#all-features)
+* [Instructions and tutorials](#instructions-and-tutorials)
+* [Inspiration](#inspiration)
 <!-- TOC -->
 
 # Overview
