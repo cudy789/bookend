@@ -10,3 +10,6 @@ Werkzeug
 pyOpenSSL
 python-barcode
 pillow
+python-dotenv
+gunicorn
+whitenoise

@@ -12,6 +12,7 @@ COPY ./library_project/ /app
 COPY ./requirements.txt /app
 
 RUN pip3 install -r requirements.txt
+RUN python3 manage.py collectstatic --no-input
 
 RUN ./update-db.sh
 
