@@ -1,6 +1,7 @@
 html, body, .modal-content {
-	background-color: #FFF8E8;
+	/*background-color: #FFF8E8;*/
 	/*background-color: #E7E7E7;*/
+    background-color: #CCD5AE;
 	font-family: 'Rubik', sans-serif;
 }
 
@@ -17,7 +18,9 @@ th > a {
 }
 
 .container {
-    background: #f2f2f5;
+    /*background: #f2f2f5;*/
+    background: #FEFAE0;
+    /*background: #E9EDC9;*/
     /*background: ##F2F5F3;*/
     /*background: #FFFFF7;*/
     padding: 2rem;
