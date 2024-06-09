@@ -11,14 +11,14 @@
 <div class="buttonContainer">
   <button class="button-small launch-modal" data-toggle="modal" data-target="#confirmCleanAuthorsModal">
     <div class="textBox">
-      Clean Author Fields
+      Clean author fields
     </div>
   </button>
 </div>
 <div class="buttonContainer">
   <button class="button-small launch-modal" data-toggle="modal" data-target="#confirmGenerateISBNBarcodesModal">
     <div class="textBox">
-      Generate ISBN Barcodes
+      Generate book and user barcodes
     </div>
   </button>
 </div>
@@ -50,13 +50,13 @@
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="confirmGenerateISBNBarcodesModalLabel">Generate ISBN Barcodes?</h5>
+        <h5 class="modal-title" id="confirmGenerateISBNBarcodesModalLabel">Generate all Barcodes?</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
       <div class="modal-body">
-          <form method="post" action="/tools/generate-isbn-barcodes" class="form">
+          <form method="post" action="/tools/generate-barcodes" class="form">
               {% csrf_token %}
               <div class="modal-footer">
               {% bootstrap_button button_type="submit" content="Confirm" %}

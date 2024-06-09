@@ -46,7 +46,7 @@ urlpatterns = [
     path('library/import-csv', import_csv, name="importCSV"),
     path('tools', tools, name="tools"),
     path('tools/clean-author-fields', clean_author_fields, name="cleanAuthorFields"),
-    path('tools/generate-isbn-barcodes', generate_isbn_barcodes, name="generateIsbnBarcodes"),
+    path('tools/generate-barcodes', generate_barcodes, name="generateIsbnBarcodes"),
     path('api/book/<str:isbn>', post_new_book, name="postnewbook"),
 ]
 

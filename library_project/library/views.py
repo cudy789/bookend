@@ -88,21 +88,21 @@ def user_details(request, card_id):
                     update_user_barcode_image(mUser)
                     user_details_form.save()
 
-                    new_isbns_list = []
-                    for isbn_form in user_isbns_formset:
-                        if isbn_form.cleaned_data and isbn_form.cleaned_data['isbn'] != "":
-                            new_isbns_list.append(isbn_form.cleaned_data['isbn'])
-                            print(isbn_form.cleaned_data['isbn'])
-                    mUser.isbns = new_isbns_list
-                    mUser.name = user_name_form.cleaned_data['name']
-
-                    mUser.save()
-
-                    return redirect("userDetails", card_id=user_details_form.cleaned_data["card_id"])
-
                 else:
                     print(f"existing user with card id {user_details_form.cleaned_data['card_id']} found, not going to change card_id")
                     messages.info(request, f"There is already a user with library card number {user_details_form.cleaned_data['card_id']}")
+            new_isbns_list = []
+            for isbn_form in user_isbns_formset:
+                if isbn_form.cleaned_data and isbn_form.cleaned_data['isbn'] != "":
+                    new_isbns_list.append(isbn_form.cleaned_data['isbn'])
+                    print(isbn_form.cleaned_data['isbn'])
+            mUser.isbns = new_isbns_list
+            mUser.name = user_name_form.cleaned_data['name']
+
+            mUser.save()
+
+            messages.info(request, f"Updated details for {mUser.name}")
+            return redirect("userDetails", card_id=user_details_form.cleaned_data["card_id"])
 
     mUser = get_object_or_404(User, card_id=card_id)
 
@@ -376,7 +376,15 @@ def book_details(request, isbn):
         print(f"book_info_form.errors: {book_info_form.errors}")
 
         if book_info_form.is_valid() and book_title_form.is_valid() and author_formset.is_valid() and tag_formset.is_valid():
-            book_info_form.save()
+            if isbn != book_info_form.cleaned_data["isbn"]:
+                if len(Book.objects.filter(isbn=book_info_form.cleaned_data["isbn"])) == 0:
+
+                    book_info_form.save()
+                    update_isbn_image(mBook)
+
+                else:
+                    messages.info(request, f"Existing book with the ISBN {book_info_form.cleaned_data['isbn']}, not updating this book's ISBN")
+
             # Save authors and tags to the book instance
             mBook.authors.clear()
             # print(author_formset)
@@ -385,7 +393,7 @@ def book_details(request, isbn):
             print("going to update author list")
             new_author_list = []
             for author_form in author_formset:
-                if author_form.cleaned_data and author_form.cleaned_data['name'] != "" :
+                if author_form.cleaned_data and author_form.cleaned_data['name'] != "":
                     new_author_list.append(author_form.cleaned_data['name'])
                     print(author_form.cleaned_data['name'])
                     # mBook.authors.create(name=author_form.cleaned_data['name'])
@@ -395,13 +403,15 @@ def book_details(request, isbn):
             new_tag_list = []
             # print(f"tag_formset: {tag_formset}")
             for tag_form in tag_formset:
-                if tag_form.cleaned_data and tag_form.cleaned_data['name'] != "" :
+                if tag_form.cleaned_data and tag_form.cleaned_data['name'] != "":
                     new_tag_list.append(tag_form.cleaned_data['name'])
                     # mBook.tags.create(name=tag_form.cleaned_data['name'])
             mBook.tags = new_tag_list
 
             mBook.save()
             messages.info(request, f"Updated {mBook.title}")
+
+            return redirect('bookDetails', isbn=book_info_form.cleaned_data['isbn'])
         else:
             messages.info(request, f"Error updating {mBook.title}, invalid information")
 
@@ -699,22 +709,53 @@ def clean_author_fields(request):
 
     return redirect("tools")
 
-def generate_isbn_barcodes(request):
-    files = glob.glob('book_isbn_images/*')
-    for f in files:
+def regenerate_barcodes_helper():
+    book_files = glob.glob('book_isbn_images/*')
+    card_files = glob.glob('card_id_images/*')
+    for f in book_files:
+        os.remove(f)
+    for f in card_files:
         os.remove(f)
 
     for mBook in Book.objects.all():
         update_isbn_image(mBook)
 
-    messages.info(request, "Generated ISBN barcodes for all books")
+    for mUser in User.objects.all():
+        update_isbn_image(mUser)
+
+    print("regenerated barcodes for all objects")
+
+def generate_barcodes(request):
+    regenerate_barcodes_helper()
+
+    messages.info(request, "Generated ISBN and library card barcodes for objects in the database")
 
     return redirect("tools")
 
 def book_isbn(request, filename):
-    with open(f"book_isbn_images/{filename}", "rb") as f:
-        return HttpResponse(f.read(), content_type="image/png")
+    try:
+        with open(f"book_isbn_images/{filename}", "rb") as f:
+            return HttpResponse(f.read(), content_type="image/png")
+    except FileNotFoundError:
+        isbn = filename.split(".")[0]
+        print(f"didn't find image, going to generate a new one for isbn {isbn}")
+        if len(Book.objects.filter(isbn=isbn)) > 0:
+            mBook = Book.objects.filter(isbn=isbn)[0]
+            update_isbn_image(mBook)
+
+            with open(f"book_isbn_images/{filename}", "rb") as f:
+                return HttpResponse(f.read(), content_type="image/png")
+
 
 def user_card_image(request, filename):
-    with open(f"card_id_images/{filename}", "rb") as f:
-        return HttpResponse(f.read(), content_type="image/png")
+    try:
+        with open(f"card_id_images/{filename}", "rb") as f:
+            return HttpResponse(f.read(), content_type="image/png")
+    except FileNotFoundError:
+        card_id = filename.split(".")[0]
+        print(f"didn't find image, going to generate a new one for card {card_id}")
+        if len(User.objects.filter(card_id=card_id)) > 0:
+            mUser = User.objects.filter(card_id=card_id)[0]
+            update_isbn_image(mUser)
+            with open(f"card_id_images/{filename}", "rb") as f:
+                return HttpResponse(f.read(), content_type="image/png")
