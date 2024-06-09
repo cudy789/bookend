@@ -1,5 +1,6 @@
 html, body, .modal-content {
-	background-color: #F2E8CF;
+	background-color: #FFF8E8;
+	/*background-color: #E7E7E7;*/
 	font-family: 'Rubik', sans-serif;
 }
 
@@ -13,6 +14,15 @@ nav, footer {
 
 th > a {
     color: #FFFFFF;
+}
+
+.container {
+    background: #f2f2f5;
+    /*background: ##F2F5F3;*/
+    /*background: #FFFFF7;*/
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .icon {

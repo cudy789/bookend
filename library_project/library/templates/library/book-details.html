@@ -2,29 +2,84 @@
 {% load static %}
 {% load django_bootstrap5 %}
 
-{% block title %}User Details{% endblock %}
+{% block title %}Book Details{% endblock %}
 
 {% block content %}
 <link rel="stylesheet" href="{% static 'website/background.css' %}">
 
-<div class="container">
-<div class="row">
-	<div class="col-2"></div>
-	<div class="col-8 text-center">
-		
-		<h1>Book details</h1>
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-2"></div>
+        	<div class="col-8 text-center">
 
-		<form method="post" class="form">
-			{% csrf_token %}
-			{% bootstrap_form form %}
-			{% bootstrap_button button_type="submit" content="Update" %}
-		</form>
+            <h1>Book Details</h1>
+            <form method="post" class="form" enctype="multipart/form-data">
+                {% csrf_token %}
+                {% bootstrap_form book_title_form %}
 
-	</div>
+                <div id="authors-formset">
+                    {{ author_formset.management_form }}
+                    {% for author_form in author_formset %}
+                        <div class="form-group authors-form">
+                            {{ author_form.name.label_tag }} {{ author_form.name }}
+                        </div>
+                    {% endfor %}
+                </div>
+                <button type="button" class="btn btn-primary mb-3" id="add-author">Add Author</button>
 
+                <div id="tags-formset">
+                    {{ tag_formset.management_form }}
+                    {% for tag_form in tag_formset %}
+                        <div class="form-group tags-form">
+                            {{ tag_form.name.label_tag }} {{ tag_form.name }}
+                        </div>
+                    {% endfor %}
+                </div>
+                <button type="button" class="btn btn-primary mb-3" id="add-tag">Add Tag</button>
 
+                {% bootstrap_form book_info_form %}
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary">Update</button>
+                </div>
+            </form>
+        </div>
+        <div class="col-2"></div>
+
+    </div>
 </div>
 
-</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        function addForm(formsetId, formPrefix) {
+            const formset = document.getElementById(formsetId);
+            const totalFormsInput = formset.querySelector(`input[name="${formPrefix}-TOTAL_FORMS"]`);
+            let totalForms = parseInt(totalFormsInput.value, 10);
 
+            const lastForm = formset.querySelector(`.${formPrefix}-form:last-of-type`);
+            if (!lastForm) {
+                console.error('No forms found in the formset');
+                return;
+            }
+
+            const newForm = lastForm.cloneNode(true);
+            newForm.querySelectorAll('input').forEach(input => {
+                const name = input.name.replace(`-${totalForms - 1}-`, `-${totalForms}-`);
+                const id = input.id.replace(`-${totalForms - 1}-`, `-${totalForms}-`);
+                input.name = name;
+                input.id = id;
+                input.value = '';
+            });
+
+            formset.appendChild(newForm);
+            totalFormsInput.value = totalForms + 1;
+        }
+
+        document.getElementById('add-author').addEventListener('click', () => addForm('authors-formset', 'authors'));
+        document.getElementById('add-tag').addEventListener('click', () => addForm('tags-formset', 'tags'));
+    });
+</script>
+{% endblock %}
+
+{% block footer %}
 {% endblock %}

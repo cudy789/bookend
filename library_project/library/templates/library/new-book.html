@@ -8,97 +8,116 @@
 <link rel="stylesheet" href="{% static 'website/background.css' %}">
 <link rel="stylesheet" href="{% static 'website/newBookButtons.css' %}">
 
-	<h1 class="text-center">Add a New Book</h1>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <h1 class="text-center">Add a New Book</h1>
+            <div class="buttonContainer">
+                <form action="/library/new/isbn" method="post" class="form">
+                              {% csrf_token %}
+                              {% bootstrap_form ISBNForm %}
+                              {% bootstrap_button button_type="submit" content="Submit" %}
+                </form>
+            </div>
 
-<div class="buttonContainer">
-    <form action="/library/new/isbn" method="post" class="form">
-                  {% csrf_token %}
-                  {% bootstrap_form ISBNForm %}
-                  <div class="modal-footer">
-                  {% bootstrap_button button_type="submit" content="Submit" %}
-                  </div>
-    </form>
+            <div class="buttonContainer">
+                <button class="buttons" data-toggle="modal" data-target="#manualModal">
+                    <div class="textBox">
+                        By Manual Entry
+                    </div>
+                    <img style="width: 275px; margin-left: 30px;" src="{% static 'website/icons/manual.png' %}">
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
-
-<div class="buttonContainer">
-{#	<button class="barcodeButton buttons" data-toggle="modal" data-target="#scanModal">#}
-{#		<div class="textBox">#}
-{#			By Barcode#}
-{#		</div>#}
-{#		<div class="barCodeIcon">#}
-{#			<div class="topHalf" style="margin-bottom: 10px;">#}
-{#				<div class="line topLine" style="width: 20px; margin-right: 30px; margin-left: 30px;"></div>#}
-{#				<div class="line topLine" style="width: 10px; margin-right: 15px;"></div>#}
-{#				<div class="line topLine" style="width: 20px; margin-right: 40px;"></div>#}
-{#				<div class="line topLine" style="width: 15px; margin-right: 35px;"></div>#}
-{#				<div class="line topLine" style="width: 20px; margin-right: 20px;"></div>#}
-{#				<div class="line topLine" style="width: 25px; margin-right: 30px;"></div>#}
-{#			</div>#}
-{#			<div class="line topLine bottomLine" style="width: 100%; height: 20px;"></div>#}
-{#			<div class="bottomHalf" style="margin-top: 10px;">#}
-{#				<div class="line bottomLine" style="width: 20px; margin-right: 30px; margin-left: 30px"></div>#}
-{#				<div class="line bottomLine" style="width: 10px; margin-right: 15px;"></div>#}
-{#				<div class="line bottomLine" style="width: 20px; margin-right: 40px;"></div>#}
-{#				<div class="line bottomLine" style="width: 15px; margin-right: 35px;"></div>#}
-{#				<div class="line bottomLine" style="width: 20px; margin-right: 20px;"></div>#}
-{#				<div class="line bottomLine" style="width: 25px; margin-right: 30px;"></div>#}
-{#			</div>#}
-{#		</div>#}
-{#	</button>#}
-	<button class="buttons" data-toggle="modal" data-target="#manualModal" style="margin-bottom: 150px;">
-		<div class="textBox">
-			By Manual Entry
-		</div>
-		<img style="width: 275px; margin-left: 30px;" src="{% static 'website/icons/manual.png' %}">
-	</button>
-</div>
-
-<!-- Scan Modal -->
-{#<div class="modal fade" id="scanModal" tabindex="-1" role="dialog" aria-labelledby="scanModalLabel" aria-hidden="true">#}
-{#  <div class="modal-dialog modal-dialog-centered" role="document">#}
-{#    <div class="modal-content">#}
-{#      <div class="modal-header">#}
-{#        <h5 class="modal-title" id="scanModalLabel">Scan Barcode</h5>#}
-{#        <button type="button" class="close" data-dismiss="modal" aria-label="Close">#}
-{#          <span aria-hidden="true">&times;</span>#}
-{#        </button>#}
-{#      </div>#}
-{#      <div class="modal-body">#}
-{#		  <form action="/library/new/isbn" method="post" class="form">#}
-{#			  {% csrf_token %}#}
-{#			  {% bootstrap_form ISBNForm %}#}
-{#			  <div class="modal-footer">#}
-{#			  {% bootstrap_button button_type="submit" content="Submit" %}#}
-{#			  </div>#}
-{#		  </form>#}
-{#      </div>#}
-{#    </div>#}
-{#  </div>#}
-{#</div>#}
-
-
 <!-- Manual Modal -->
 <div class="modal fade" id="manualModal" tabindex="-1" role="dialog" aria-labelledby="manualModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="manualModalLabel">Enter Book Data</h5>
+        <h5 class="modal-title" id="manualModalLabel">Enter Book Info</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
 
       <div class="modal-body">
+
+
       	<form action="/library/new/manual" method="post" class="form">
-			  {% csrf_token %}
-			  {% bootstrap_form manualForm %}
+            {% csrf_token %}
+
+            {% bootstrap_form manual_book_title_form %}
+
+            <div id="authors-formset">
+                {{ author_formset.management_form }}
+                {% for author_form in author_formset %}
+                    <div class="form-group authors-form">
+                        {{ author_form.name.label_tag }} {{ author_form.name }}
+                    </div>
+                {% endfor %}
+            </div>
+            <button type="button" class="btn btn-primary mb-3" id="add-author">Add Author</button>
+
+            <div id="tags-formset">
+                {{ tag_formset.management_form }}
+                {% for tag_form in tag_formset %}
+                    <div class="form-group tags-form">
+                        {{ tag_form.name.label_tag }} {{ tag_form.name }}
+                    </div>
+                {% endfor %}
+            </div>
+            <button type="button" class="btn btn-primary mb-3" id="add-tag">Add Tag</button>
+
+            {% bootstrap_form manual_book_info_form %}
+
+
             <div class="modal-footer">
                 {% bootstrap_button button_type="submit" content="Submit" %}
             </div>
         </form>
+
+
+
       </div>
     </div>
   </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        function addForm(formsetId, formPrefix) {
+            const formset = document.getElementById(formsetId);
+            const totalFormsInput = formset.querySelector(`input[name="${formPrefix}-TOTAL_FORMS"]`);
+            let totalForms = parseInt(totalFormsInput.value, 10);
+
+            const lastForm = formset.querySelector(`.${formPrefix}-form:last-of-type`);
+            if (!lastForm) {
+                console.error('No forms found in the formset');
+                return;
+            }
+
+            const newForm = lastForm.cloneNode(true);
+            newForm.querySelectorAll('input').forEach(input => {
+                const name = input.name.replace(`-${totalForms - 1}-`, `-${totalForms}-`);
+                const id = input.id.replace(`-${totalForms - 1}-`, `-${totalForms}-`);
+                input.name = name;
+                input.id = id;
+                input.value = '';
+            });
+
+            formset.appendChild(newForm);
+            totalFormsInput.value = totalForms + 1;
+        }
+
+        document.getElementById('add-author').addEventListener('click', () => addForm('authors-formset', 'authors'));
+        document.getElementById('add-tag').addEventListener('click', () => addForm('tags-formset', 'tags'));
+    });
+</script>
+
+{% endblock %}
+
+{% block footer %}
 
 {% endblock %}

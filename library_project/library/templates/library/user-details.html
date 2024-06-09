@@ -7,25 +7,72 @@
 {% block content %}
 <link rel="stylesheet" href="{% static 'website/background.css' %}">
 
-<div class="container">
-<div class="row">
+<div class="container my-5">
+<div class="row justify-content-center">
 	<div class="col-2"></div>
-	<div class="col-8 text-center">
-		
-		<h1>User details</h1>
+        <div class="col-8 text-center">
 
-		<form method="post" class="form">
-			{% csrf_token %}
-			{% bootstrap_form form %}
-			{% bootstrap_button button_type="submit" content="Update" %}
-		</form>
+            <h1>User details</h1>
 
-	</div>
+            <form method="post" class="form" enctype="multipart/form-data">
+                {% csrf_token %}
+                {% bootstrap_form user_name_form %}
+
+                <div id="isbns-formset">
+                    {{ user_isbns_formset.management_form }}
+                    {% for isbn_form in user_isbns_formset %}
+                        <div class="form-group isbns-form">
+                            {{ isbn_form.isbn.label_tag }} {{ isbn_form.isbn }}
+                        </div>
+                    {% endfor %}
+                </div>
+                <button type="button" class="btn btn-primary mb-3" id="add-isbn">Add ISBN</button>
+
+                {% bootstrap_form user_details_form %}
+
+
+                {% bootstrap_button button_type="submit" content="Update" %}
+            </form>
+
+        </div>
 	<div class="col-2"></div>
-
 
 </div>
 
 
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        function addForm(formsetId, formPrefix) {
+            const formset = document.getElementById(formsetId);
+            const totalFormsInput = formset.querySelector(`input[name="${formPrefix}-TOTAL_FORMS"]`);
+            let totalForms = parseInt(totalFormsInput.value, 10);
+
+            const lastForm = formset.querySelector(`.${formPrefix}-form:last-of-type`);
+            if (!lastForm) {
+                console.error('No forms found in the formset');
+                return;
+            }
+
+            const newForm = lastForm.cloneNode(true);
+            newForm.querySelectorAll('input').forEach(input => {
+                const name = input.name.replace(`-${totalForms - 1}-`, `-${totalForms}-`);
+                const id = input.id.replace(`-${totalForms - 1}-`, `-${totalForms}-`);
+                input.name = name;
+                input.id = id;
+                input.value = '';
+            });
+
+            formset.appendChild(newForm);
+            totalFormsInput.value = totalForms + 1;
+        }
+
+        document.getElementById('add-isbn').addEventListener('click', () => addForm('isbns-formset', 'isbns'));
+    });
+</script>
+{% endblock %}
+
+{% block footer %}
+
 {% endblock %}

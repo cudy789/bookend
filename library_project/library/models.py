@@ -28,12 +28,12 @@ class Book(models.Model):
     subtitle = models.CharField(max_length=300, blank=True, null=True)
     publisher = models.CharField(max_length=100, blank=True, null=True)
     publishedDate = models.CharField(max_length=20, blank=True, null=True)
-    description = models.CharField(max_length=500, blank=True, null=True)
+    description = models.CharField(max_length=5000, blank=True, null=True)
     pageCount = models.IntegerField(default=0,
                                     validators=[
                                         MinValueValidator(0)
                                     ], blank=True, null=True)
-    categories = models.JSONField(blank=True, null=True)
+    # categories = models.JSONField(blank=True, null=True)
     averageRating = models.DecimalField(default=0,
                                         decimal_places=1,
                                         max_digits=2,
