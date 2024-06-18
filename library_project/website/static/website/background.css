@@ -28,6 +28,18 @@ th > a {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.table-responsive table {
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: 1rem;
+    background-color: transparent;
+}
+
 .icon {
 filter: invert(99%) sepia(39%) saturate(2433%) hue-rotate(17deg) brightness(89%) contrast(73%);
 margin-right: 10px;

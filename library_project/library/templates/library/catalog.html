@@ -29,10 +29,11 @@
 <div>
     <br>
 </div>
-{% if table %}
-{% render_table table %}
-{% endif %}
-
+    <div class="table-responsive">
+        {% if table %}
+            {% render_table table %}
+        {% endif %}
+    </div>
 </div>
 
 
