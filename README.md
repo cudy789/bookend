@@ -67,7 +67,7 @@ Built-in barcode generation for library card numbers and book ISBNs - handy for 
 
 # Interested? Try out the demo!
 
-[Try out the demo site here!](http://cknutson.org:8080) Data is reset every 15 minutes.
+[Try out the demo site here!](http://cknutson.org:8080)
 
 # Get Bookend
 
