@@ -13,7 +13,7 @@ class Book(models.Model):
     authors = models.JSONField(default=list, blank=True, null=True)
     isbn = models.CharField(max_length=13, blank=True, null=True)
     isbn_image = models.ImageField(blank=True, null=True, upload_to='book_isbn_images/')
-    quantity = models.IntegerField(default=0,
+    quantity = models.IntegerField(default=1,
                                    verbose_name="Copies",
                                    validators=[
                                        MinValueValidator(0)

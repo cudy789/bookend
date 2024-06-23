@@ -756,6 +756,6 @@ def user_card_image(request, filename):
         print(f"didn't find image, going to generate a new one for card {card_id}")
         if len(User.objects.filter(card_id=card_id)) > 0:
             mUser = User.objects.filter(card_id=card_id)[0]
-            update_isbn_image(mUser)
+            update_user_barcode_image(mUser)
             with open(f"card_id_images/{filename}", "rb") as f:
                 return HttpResponse(f.read(), content_type="image/png")
