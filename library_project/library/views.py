@@ -496,8 +496,11 @@ def check_in(request):
                 print("book with entered ISBN is not in your library")
         else:
             print("form is invalid")
-    print("redirecting to home")
-    return redirect("home")
+    if request.META['HTTP_REFERER'][-2:] == '/l':
+        return redirect("checkinoutOnly")
+    else:
+        print("redirecting to home")
+        return redirect("home")
 
 def check_out(request):
     if request.method == "POST":
@@ -528,8 +531,11 @@ def check_out(request):
                 print("book with entered ISBN is not in your library")
         else:
             print("form is invalid")
-    print("redirecting to home")
-    return redirect("home")
+    if request.META['HTTP_REFERER'][-2:] == '/l':
+        return redirect("checkinoutOnly")
+    else:
+        print("redirecting to home")
+        return redirect("home")
 
 def catalog(request):
     form = SearchForm(request.POST)
