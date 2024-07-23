@@ -90,7 +90,7 @@ with the location on your local machine to store your persistent sqlite3 databas
 the hostname/IP you'd like to bind your instance to (defaults to `localhost`):
     ```
    docker run -d --name=bookend \
-        -v </PATH/TO/STORE/DATABASE>/db.sqlite3:/app/db.sqlite3:rw \
+        -v </PATH/TO/STORE/DATABASE>/db.sqlite3:/app/data/db.sqlite3:rw \
         --env DJANGO_SECRET_KEY="<RANDOM_SECRET_KEY_VALUE>" \
         --env ALLOWED_HOST="<YOUR_HOSTNAME_OR_IP>" \
         --rm -p 8080:8080 \

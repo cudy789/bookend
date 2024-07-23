@@ -8,7 +8,7 @@ RUN mkdir /app
 
 WORKDIR /app
 
-COPY ./library_project/ /app
+COPY ./src/ /app
 COPY ./requirements.txt /app
 
 RUN pip3 install -r requirements.txt
