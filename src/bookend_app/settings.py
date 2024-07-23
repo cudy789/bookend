@@ -27,7 +27,7 @@ load_dotenv(dotenv_path=BASE_DIR / '../.env')
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-tze1moomr73kvhsj8j*9ewnet8izs#z+@_5lv9za3e$pdkowyt')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['localhost', os.environ.get('ALLOWED_HOST', '')]
 
@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'website',
     'bookend',
+    'api',
     'django_tables2',
     'django_extensions',
 ]

@@ -1,14 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from isbnlookup.isbnlookup import ISBNLookup
 from django.contrib import messages
 from .forms import *
 from django.http import FileResponse, HttpResponse
 from django.db.models import Sum
 from django.core.files import File
 
-from barcode import ISBN13, Code39
-from barcode.writer import ImageWriter
-from io import BytesIO
+from api.ISBNQuery import ISBNQuery
+from api.Barcodes import Barcodes
 
 from django_tables2 import SingleTableView, LazyPaginator
 from .tables import BookTable, UserBookTable, UserTable
@@ -31,33 +29,15 @@ class UserTableClass(SingleTableView):
     template_name = "tables/user-catalog.html"
     SingleTableView.table_pagination = False
 
-def barcode_helper(m_number: str):
-    rv = BytesIO()
-
-    if len(m_number) == 13:
-        try:
-            ISBN13(str(m_number), writer=ImageWriter()).write(rv)
-        except Exception:
-            Code39(str(m_number), writer=ImageWriter(), add_checksum=False).write(rv)
-    elif len(m_number) == 10:
-        try:
-            ISBN13(str(m_number), writer=ImageWriter()).write(rv)
-        except Exception:
-            Code39(str(m_number), writer=ImageWriter(), add_checksum=False).write(rv)
-    else:
-        Code39(str(m_number), writer=ImageWriter(), add_checksum=False).write(rv)
-
-    return rv
-
 def update_isbn_image(mBook: Book):
     mIsbn = mBook.isbn
 
-    rv = barcode_helper(mIsbn)
+    rv = Barcodes().gen_image(mIsbn)
     mBook.isbn_image.save(f"{mIsbn}.png", File(rv))
 
 def update_user_barcode_image(mUser: User):
     userId = mUser.card_id
-    rv = barcode_helper(userId)
+    rv = Barcodes().gen_image(userId)
     mUser.card_id_image.save(f"{userId}.png", File(rv))
 
 def home(request):
@@ -243,12 +223,14 @@ def new_book_isbn(request):
         bookForm = ISBNAddBookForm(request.POST)
         if bookForm.is_valid():
             print(bookForm.cleaned_data["isbn"])
-            bookDict = ISBNLookup().lookup(bookForm.cleaned_data["isbn"])
-            bookDict = {i:bookDict[i] for i in bookDict if i!='categories'}
+            bookDict = ISBNQuery().query(bookForm.cleaned_data["isbn"])
+            if bookDict is not None:
+                bookDict = {i:bookDict[i] for i in bookDict if i!='categories'}
 
             if bookDict is None:
                 messages.info(request, "Error, could not add book")
             else:
+
                 book = Book.objects.filter(isbn=bookForm.cleaned_data["isbn"])
                 if len(book) == 0:
                     book = Book(**bookDict)
@@ -553,7 +535,7 @@ def import_csv(request):
                         print(book)
                         continue
 
-                    bookDict = ISBNLookup().lookup(isbn)
+                    bookDict = ISBNQuery().lookup(isbn)
                     time.sleep(3)
 
                     if bookDict is None:

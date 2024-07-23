@@ -3,7 +3,7 @@
 import urllib.request
 import json
 
-class ISBNLookup:
+class ISBNQuery:
     """
     This class uses the Google Book API to populate relevant book information given a single ISBN number. The API
     doesn't always find a match for the ISBN, and sometimes the data it returns isn't completely filled out.
@@ -12,7 +12,7 @@ class ISBNLookup:
     def __init__(self):
         pass
 
-    def lookup(self, isbn_num:str):
+    def query(self, isbn_num:str):
         """
         Given an ISBN number (ISBN 10 or 13), return None if no book is found for a given ISBN, or returns
         a dictionary of the following structure:
@@ -123,4 +123,4 @@ class ISBNLookup:
         return b_dict
 
 if __name__ == "__main__":
-    print(ISBNLookup().lookup(input("enter isbn")))
+    print(ISBNQuery().query(input("enter isbn")))
