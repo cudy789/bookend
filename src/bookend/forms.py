@@ -13,8 +13,6 @@ class PictureWidget(forms.widgets.Widget):
     def render(self, name, value, attrs=None, **kwargs):
         print(f"{name}, {value}, {attrs}, {kwargs}")
         return format_html('<img class="text-center" src="{}" />', value)
-        # html =  Template("""<img src="$link"/>""")
-        # return mark_safe(html.substitute(link=value))
 
 
 class ManualAddBookForm(ModelForm):
