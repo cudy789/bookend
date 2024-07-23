@@ -3,40 +3,11 @@
 *.pot
 *.pyc
 __pycache__
-db.sqlite3
-media
 
 .idea/
 
 # Backup files #
 *.bak
-
-# If you are using PyCharm #
-# User-specific stuff
-.idea/**/workspace.xml
-.idea/**/tasks.xml
-.idea/**/usage.statistics.xml
-.idea/**/dictionaries
-.idea/**/shelf
-
-# AWS User-specific
-.idea/**/aws.xml
-
-# Generated files
-.idea/**/contentModel.xml
-
-# Sensitive or high-churn files
-.idea/**/dataSources/
-.idea/**/dataSources.ids
-.idea/**/dataSources.local.xml
-.idea/**/sqlDataSources.xml
-.idea/**/dynamic.xml
-.idea/**/uiDesigner.xml
-.idea/**/dbnavigator.xml
-
-# Gradle
-.idea/**/gradle.xml
-.idea/**/libraries
 
 # File-based project format
 *.iws
@@ -86,17 +57,12 @@ coverage.xml
 *.cover
 .hypothesis/
 
-# Jupyter Notebook
-.ipynb_checkpoints
 
 # pyenv
 .python-version
 
 # celery
 celerybeat-schedule.*
-
-# SageMath parsed files
-*.sage.py
 
 # Environments
 .env
@@ -130,18 +96,10 @@ Control.ca-bundle
 Control.system-ca-bundle
 GitHub.sublime-settings
 
-# Visual Studio Code #
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-.history
 
-library_project/imported_data.csv
-library_project/cert.key
-library_project/cert.crt
-library_project/library/migrations
-library_project/book_isbn_images/*
-library_project/card_id_images/*
-library_project/static
+src/bookend/data/imported_data.csv
+src/cert.key
+src/cert.crt
+src/data/book_isbn_images/*
+src/data/card_id_images/*
+src/data/*.csv
