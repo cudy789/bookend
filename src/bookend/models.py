@@ -48,3 +48,6 @@ class User(models.Model):
     isbns = models.JSONField(default=list, blank=True, null=True)
     card_id = models.CharField(max_length=50, verbose_name="Library Card Number")
     card_id_image = models.ImageField(blank=True, null=True, upload_to='data/card_id_images/')
+
+class AppMetadata(models.Model):
+    app_name = models.CharField(max_length=100, default="Bookend")

@@ -22,7 +22,7 @@ from bookend.views import *
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', home, name="home"),
-    path('l', checkinout_only, name="checkinoutOnly"),
+    path('l', kiosk, name="kiosk"),
     path('newuser', new_user, name="newUser"),
     path('removeuser', remove_user, name="removeUser"),
     path('users/<card_id>', user_details, name="userDetails"),
@@ -37,15 +37,15 @@ urlpatterns = [
     path('library/check-in', check_in, name="checkIn"),
     path('library/check-out', check_out, name="checkOut"),
     path('library/catalog', catalog, name="catalog"),
-    path('users', UserTableClass.as_view(), name="users"),
+    path('users', all_users, name="users"),
     path('library/user-books', user_books, name="userBooks"),
     path('library/download-report', download_report, name="downloadReport"),
     path('library/books-report', books_report, name="booksReport"),
     path('library/users-report', users_report, name="usersReport"),
     path('library/import-csv', import_csv, name="importCSV"),
-    path('tools', tools, name="tools"),
-    path('tools/clean-author-fields', clean_author_fields, name="cleanAuthorFields"),
-    path('tools/generate-barcodes', generate_barcodes, name="generateIsbnBarcodes"),
+    path('settings', settings, name="settings"),
+    path('settings/clean-author-fields', clean_author_fields, name="cleanAuthorFields"),
+    path('settings/generate-barcodes', generate_barcodes, name="generateIsbnBarcodes"),
 ]
 
 
