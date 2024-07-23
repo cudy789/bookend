@@ -9,6 +9,8 @@ from api.ISBNQuery import ISBNQuery
 from api.Barcodes import Barcodes
 
 from django_tables2 import SingleTableView, LazyPaginator
+
+from .models import AppMetadata
 from .tables import BookTable, UserBookTable, UserTable
 import zipfile
 import time
@@ -29,6 +31,26 @@ class UserTableClass(SingleTableView):
     template_name = "tables/user-catalog.html"
     SingleTableView.table_pagination = False
 
+def get_app_title():
+    if len(AppMetadata.objects.all()) == 0:
+        mMetadata = AppMetadata()
+        mMetadata.save()
+    return AppMetadata.objects.all()[0].app_name
+
+def update_app_title(new_title: str):
+    if len(AppMetadata.objects.all()) == 0:
+        mMetadata = AppMetadata()
+        mMetadata.app_name = new_title
+        mMetadata.save()
+    else:
+        mMetadata = AppMetadata.objects.all()[0]
+        mMetadata.app_name = new_title
+        mMetadata.save()
+
+def base_render(request, template_name, context=None):
+    if context is None:
+        context = {}
+    return render(request, template_name, {**context, **{"APP_TITLE": get_app_title()}})
 def update_isbn_image(mBook: Book):
     mIsbn = mBook.isbn
 
@@ -43,13 +65,17 @@ def update_user_barcode_image(mUser: User):
 def home(request):
     checkInForm = CheckInForm()
     checkOutForm = CheckOutForm()
-    return render(request, "pages/home.html", {"checkInForm": checkInForm,
+    return base_render(request, "pages/home.html", {"checkInForm": checkInForm,
                                                  "checkOutForm": checkOutForm})
-def checkinout_only(request):
+def kiosk(request):
     checkInForm = CheckInForm()
     checkOutForm = CheckOutForm()
-    return render(request, "pages/checkinout-only.html", {"checkInForm": checkInForm,
+    return base_render(request, "pages/kiosk.html", {"checkInForm": checkInForm,
                                                  "checkOutForm": checkOutForm})
+def all_users(request):
+    return base_render(request, 'pages/all-users.html', { "table": UserTable(User.objects.all())})
+
+
 def user_details(request, card_id):
     print(f"user details for card_id: {card_id}")
     mUser = get_object_or_404(User, card_id=card_id)
@@ -90,7 +116,7 @@ def user_details(request, card_id):
     initial_isbns = [{'isbn': isbn} for isbn in mUser.isbns]
     user_isbns_formset = ISBNFormSet(prefix='isbns', initial=initial_isbns)
 
-    return render(request, 'pages/user-details.html',{
+    return base_render(request, 'pages/user-details.html',{
         'user_name_form': user_name_form,
         'user_isbns_formset': user_isbns_formset,
         'user_details_form': user_details_form,
@@ -109,7 +135,7 @@ def new_user(request):
                 update_user_barcode_image(mUser)
                 messages.info(request, "{}'s profile has been created".format(newUserForm.cleaned_data["name"]))
     newUserForm = NewUserForm()
-    return render(request, "pages/new-user.html", {"form": newUserForm })
+    return base_render(request, "pages/new-user.html", {"form": newUserForm })
 
 def remove_user(request):
     if request.method == "POST":
@@ -135,7 +161,7 @@ def remove_user(request):
             else:
                 messages.info(request, "No user with ID {}".format(removeUserForm.cleaned_data["card_id"]))
     removeUserForm = RemoveUserForm()
-    return render(request, "pages/remove-user.html", {"form": removeUserForm })
+    return base_render(request, "pages/remove-user.html", {"form": removeUserForm })
 
 
 def user_books(request):
@@ -153,7 +179,7 @@ def user_books(request):
 
                 mTable = UserBookTable(mBookList)
 
-                return render(request, "pages/user-books.html", {"form": userBooksForm,
+                return base_render(request, "pages/user-books.html", {"form": userBooksForm,
                                                                   "table": mTable })
             else:
                 messages.info(request, f"No user found for ID {userBooksForm.cleaned_data['card_id']}")
@@ -161,7 +187,7 @@ def user_books(request):
             print("form is invalid")
 
 
-    return render(request, "pages/user-books.html", {"form": ViewUserBooksForm()})
+    return base_render(request, "pages/user-books.html", {"form": ViewUserBooksForm()})
 
 def new_book(request):
 
@@ -170,7 +196,7 @@ def new_book(request):
     author_formset = AuthorFormSet(prefix='authors')
     tag_formset = TagFormSet(prefix='tags')
 
-    return render(request, "pages/new-book.html", {
+    return base_render(request, "pages/new-book.html", {
         "ISBNForm": ISBNAddBookForm(),
         "manual_book_info_form": manual_book_info_form,
         "manual_book_title_form": manual_book_title_form,
@@ -263,7 +289,7 @@ def remove_book(request):
             else:
                 messages.info(request, "No book with ISBN {}".format(removeBookForm.cleaned_data["isbn"]))
     removeBookForm = RemoveBookForm()
-    return render(request, "pages/remove-book.html", {"form": removeBookForm })
+    return base_render(request, "pages/remove-book.html", {"form": removeBookForm })
 
 def book_details(request, isbn):
     print("book details")
@@ -327,7 +353,7 @@ def book_details(request, isbn):
     initial_tags = [{'name': tag} for tag in mBook.tags]
     tag_formset = TagFormSet(prefix='tags', initial=initial_tags)
 
-    return render(request, 'pages/book-details.html', {
+    return base_render(request, 'pages/book-details.html', {
         'book_info_form': book_info_form,
         'book_title_form': book_title_form,
         'author_formset': author_formset,
@@ -366,7 +392,7 @@ def check_in(request):
         else:
             print("form is invalid")
     if request.META['HTTP_REFERER'][-2:] == '/l':
-        return redirect("checkinoutOnly")
+        return redirect("kiosk")
     else:
         print("redirecting to home")
         return redirect("home")
@@ -401,7 +427,7 @@ def check_out(request):
         else:
             print("form is invalid")
     if request.META['HTTP_REFERER'][-2:] == '/l':
-        return redirect("checkinoutOnly")
+        return redirect("kiosk")
     else:
         print("redirecting to home")
         return redirect("home")
@@ -428,7 +454,7 @@ def catalog(request):
                 num_results = results.aggregate(Sum("quantity"))["quantity__sum"]
             else:
                 num_results = 0
-            return render(request, "pages/catalog.html", {"form": form,
+            return base_render(request, "pages/catalog.html", {"form": form,
                                                            "table": BookTable(results),
                                                             "num_results": num_results
                                                             })
@@ -440,7 +466,7 @@ def catalog(request):
     else:
         num_results = 0
 
-    return render(request, "pages/catalog.html", {"form": SearchForm(),
+    return base_render(request, "pages/catalog.html", {"form": SearchForm(),
                                                     "table":BookTable(Book.objects.all().order_by(ordered_by)),
                                                     "num_results": num_results})
 
@@ -557,10 +583,15 @@ def import_csv(request):
         else:
             messages.info(request, "Invalid form")
 
-    return render(request, "pages/import-csv.html", {"form": UploadFileForm()})
+    return base_render(request, "pages/import-csv.html", {"form": UploadFileForm()})
 
-def tools(request):
-    return render(request, "pages/tools.html",)
+def settings(request):
+    if request.method == "POST":
+        name_form = AppNameForm(request.POST)
+        if name_form.is_valid():
+            update_app_title(name_form.cleaned_data['name'])
+
+    return base_render(request, "pages/settings.html", {"form": AppNameForm(initial={"name": get_app_title()})})
 
 def clean_author_fields(request):
     for mBook in Book.objects.all():

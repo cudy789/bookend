@@ -167,3 +167,6 @@ class SearchForm(forms.Form):
         labels = {
             "query": "title, author, category, ISBN, tags"
         }
+
+class AppNameForm(forms.Form):
+    name = forms.CharField(label="Website name")
