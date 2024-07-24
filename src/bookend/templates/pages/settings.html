@@ -22,13 +22,6 @@
 {#      </button>#}
 {#    </div>#}
 {#    <br>#}
-{#    <div class="buttonContainer">#}
-{#      <button class="btn btn-primary mb-3 launch-modal" data-toggle="modal" data-target="#confirmGenerateISBNBarcodesModal">#}
-{#        <div class="textBox">#}
-{#          Generate book and user barcodes#}
-{#        </div>#}
-{#      </button>#}
-{#    </div>#}
 {#    <br>#}
     <br><br>
     <form method="post" action="/settings" class="form">
@@ -36,6 +29,14 @@
         {% bootstrap_form form %}
         {% bootstrap_button button_type="submit" content="Update" %}
     </form>
+    <br><br>
+    <div class="buttonContainer">
+      <button class="btn btn-primary mb-3 launch-modal" data-toggle="modal" data-target="#confirmGenerateISBNBarcodesModal">
+        <div class="textBox">
+          Regenerate book and user barcodes
+        </div>
+      </button>
+    </div>
 </div>
 </div>
 </div>
@@ -52,7 +53,7 @@
         </button>
       </div>
       <div class="modal-body">
-          <form method="post" action="/tools/clean-author-fields" class="form">
+          <form method="post" action="/settings/clean-author-fields" class="form">
               {% csrf_token %}
               <div class="modal-footer">
               {% bootstrap_button button_type="submit" content="Confirm" %}
@@ -73,7 +74,7 @@
         </button>
       </div>
       <div class="modal-body">
-          <form method="post" action="/tools/generate-barcodes" class="form">
+          <form method="post" action="/settings/generate-barcodes" class="form">
               {% csrf_token %}
               <div class="modal-footer">
               {% bootstrap_button button_type="submit" content="Confirm" %}

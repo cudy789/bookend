@@ -627,7 +627,7 @@ def generate_barcodes(request):
 
     messages.info(request, "Generated ISBN and library card barcodes for objects in the database")
 
-    return redirect("tools")
+    return redirect("settings")
 
 def book_isbn(request, filename):
     try:
