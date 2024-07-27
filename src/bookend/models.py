@@ -8,7 +8,7 @@ class Book(models.Model):
     tags = models.JSONField(default=list, blank=True, null=True)
     authors = models.JSONField(default=list, blank=True, null=True)
     isbn = models.CharField(max_length=13)
-    isbn_image = models.ImageField(blank=True, null=True, upload_to='data/book_isbn_images/')
+    isbn_image = models.ImageField(blank=True, null=True, upload_to='website/static/book_isbn_images/')
     quantity = models.IntegerField(default=1,
                                    verbose_name="Copies",
                                    validators=[
@@ -40,6 +40,7 @@ class Book(models.Model):
                                         blank=True, null=True)
     maturityRating = models.CharField(max_length=100, blank=True, null=True)
     thumbnail = models.CharField(max_length=200, blank=True, null=True)
+    thumbnail_image = models.ImageField(blank=True, null=True, upload_to='website/static/book_cover_images/')
     publicDomain = models.BooleanField(blank=True, null=True)
 
 
@@ -47,7 +48,7 @@ class User(models.Model):
     name = models.CharField(max_length=100)
     isbns = models.JSONField(default=list, blank=True, null=True)
     card_id = models.CharField(max_length=50, verbose_name="Library Card Number")
-    card_id_image = models.ImageField(blank=True, null=True, upload_to='data/card_id_images/')
+    card_id_image = models.ImageField(blank=True, null=True, upload_to='website/static/card_id_images/')
 
 class AppMetadata(models.Model):
     app_name = models.CharField(max_length=100, default="Bookend")

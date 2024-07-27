@@ -7,6 +7,7 @@ from django.core.files import File
 
 from api.ISBNQuery import ISBNQuery
 from api.Barcodes import Barcodes
+from api.CoverGeneration import gen_cover
 
 from django_tables2 import SingleTableView, LazyPaginator
 
@@ -16,6 +17,9 @@ import zipfile
 import time
 import csv
 import glob, os
+import requests
+from io import BytesIO
+
 
 
 # Create your views here.
@@ -57,6 +61,20 @@ def update_isbn_image(mBook: Book):
     rv = Barcodes().gen_image(mIsbn)
     mBook.isbn_image.save(f"{mIsbn}.png", File(rv))
 
+def update_cover_image(mBook: Book):
+    print(f"mBook.thumbnail: {mBook.thumbnail}")
+    if mBook.thumbnail != None and len(mBook.thumbnail) > 0:
+        print("updating thumbnail image")
+        response = requests.get(mBook.thumbnail)
+        rv = BytesIO(response.content)
+        mBook.thumbnail_image.save(f"{mBook.isbn}.png", File(rv))
+    if mBook.thumbnail == None or len(mBook.thumbnail) == 0:
+        title_list = str(mBook.title).split(" ")
+        initials = [title_list[0][0]]
+        if len(title_list) >= 2:
+            initials.append(title_list[-1][0])
+        rv = gen_cover(initials)
+        mBook.thumbnail_image.save(f"{mBook.isbn}.png", File(rv))
 def update_user_barcode_image(mUser: User):
     userId = mUser.card_id
     rv = Barcodes().gen_image(userId)
@@ -225,6 +243,7 @@ def new_book_manual(request):
                 info_form.save()
                 mBook = Book.objects.filter(isbn=info_form.cleaned_data["isbn"])[0]
                 update_isbn_image(mBook)
+                update_cover_image(mBook)
                 mBook.title = title_form.cleaned_data["title"]
                 author_list = []
                 for author_form in author_formset:
@@ -268,6 +287,7 @@ def new_book_isbn(request):
                     book.save()
                     mBook = Book.objects.filter(isbn=book.isbn)[0]
                     update_isbn_image(mBook)
+                    update_cover_image(mBook)
                 else:
                     book[0].quantity += 1
                     book[0].save()
@@ -310,11 +330,13 @@ def book_details(request, isbn):
         print(f"book_info_form.errors: {book_info_form.errors}")
 
         if book_info_form.is_valid() and book_title_form.is_valid() and author_formset.is_valid() and tag_formset.is_valid():
+            update_cover_image(mBook)
             if isbn != book_info_form.cleaned_data["isbn"]:
                 if len(Book.objects.filter(isbn=book_info_form.cleaned_data["isbn"])) == 0:
 
                     book_info_form.save()
                     update_isbn_image(mBook)
+
 
                 else:
                     messages.info(request, f"Existing book with the ISBN {book_info_form.cleaned_data['isbn']}, not updating this book's ISBN")
@@ -606,16 +628,20 @@ def clean_author_fields(request):
 
     return redirect("tools")
 
-def regenerate_barcodes_helper():
-    book_files = glob.glob('data/book_isbn_images/*')
-    card_files = glob.glob('data/card_id_images/*')
-    for f in book_files:
+def regenerate_images_helper():
+    book_barcodes = glob.glob('website/static/book_isbn_images/*')
+    book_covers = glob.glob('website/static/book_cover_images/*')
+    card_files = glob.glob('website/static/card_id_images/*')
+    for f in book_barcodes:
+        os.remove(f)
+    for f in book_covers:
         os.remove(f)
     for f in card_files:
         os.remove(f)
 
     for mBook in Book.objects.all():
         update_isbn_image(mBook)
+        update_cover_image(mBook)
 
     for mUser in User.objects.all():
         update_user_barcode_image(mUser)
@@ -623,7 +649,7 @@ def regenerate_barcodes_helper():
     print("regenerated barcodes for all objects")
 
 def generate_barcodes(request):
-    regenerate_barcodes_helper()
+    regenerate_images_helper()
 
     messages.info(request, "Generated ISBN and library card barcodes for objects in the database")
 
@@ -631,7 +657,7 @@ def generate_barcodes(request):
 
 def book_isbn(request, filename):
     try:
-        with open(f"data/book_isbn_images/{filename}", "rb") as f:
+        with open(f"website/static/book_isbn_images/{filename}", "rb") as f:
             print(f"found image!")
             return HttpResponse(f.read(), content_type="image/png")
     except FileNotFoundError:
@@ -640,14 +666,31 @@ def book_isbn(request, filename):
         if len(Book.objects.filter(isbn=isbn)) > 0:
             mBook = Book.objects.filter(isbn=isbn)[0]
             update_isbn_image(mBook)
+            update_cover_image(mBook)
 
-            with open(f"data/book_isbn_images/{filename}", "rb") as f:
+            with open(f"website/static/book_isbn_images/{filename}", "rb") as f:
                 return HttpResponse(f.read(), content_type="image/png")
+
+def book_cover_image(request, filename):
+    try:
+        with open(f"website/static/book_cover_images/{filename}", "rb") as f:
+            print(f"found image!")
+            return HttpResponse(f.read(), content_type="image/png")
+    except FileNotFoundError:
+        isbn = filename.split(".")[0]
+        print(f"didn't find a cover image, going to generate a new one for isbn {isbn}")
+        if len(Book.objects.filter(isbn=isbn)) > 0:
+            mBook = Book.objects.filter(isbn=isbn)[0]
+            update_cover_image(mBook) # TODO shouldn't have 1000 get requests, should send in catalog return
+
+            with open(f"website/static/book_cover_images/{filename}", "rb") as f:
+                return HttpResponse(f.read(), content_type="image/png")
+
 
 
 def user_card_image(request, filename):
     try:
-        with open(f"data/card_id_images/{filename}", "rb") as f:
+        with open(f"website/static/card_id_images/{filename}", "rb") as f:
             return HttpResponse(f.read(), content_type="image/png")
     except FileNotFoundError:
         card_id = filename.split(".")[0]
@@ -655,5 +698,6 @@ def user_card_image(request, filename):
         if len(User.objects.filter(card_id=card_id)) > 0:
             mUser = User.objects.filter(card_id=card_id)[0]
             update_user_barcode_image(mUser)
-            with open(f"data/card_id_images/{filename}", "rb") as f:
+            with open(f"website/static/card_id_images/{filename}", "rb") as f:
                 return HttpResponse(f.read(), content_type="image/png")
+

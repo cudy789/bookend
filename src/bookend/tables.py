@@ -4,7 +4,8 @@ from .models import Book, User
 
 class ImageColumn(tables.Column):
     def render(self, value):
-        return format_html('<img src="{}" />', value)
+        print(f"VALUE: {value}")
+        return format_html(f'<img src="/{value}" />',)
 
 class AuthorColumn(tables.Column):
     def render(self, value):
@@ -85,7 +86,7 @@ class LinkISBNColumn(tables.Column):
 
 
 class BookTable(tables.Table):
-    thumbnail = ImageColumn('Cover')
+    thumbnail_image = ImageColumn('Cover')
     authors = AuthorColumn('Authors')
     isbn = LinkISBNColumn('ISBN')
     tags = TagsColumn('Tags')
@@ -95,10 +96,10 @@ class BookTable(tables.Table):
                  'thead': {
                      'class': 'thead-dark'
                  }}
-        fields = ("thumbnail", "title", "authors", "tags", "quantity", "checkedOut", "isbn")
+        fields = ("thumbnail_image", "title", "authors", "tags", "quantity", "checkedOut", "isbn")
 
 class UserBookTable(tables.Table):
-    thumbnail = ImageColumn('Cover')
+    thumbnail_image = ImageColumn('Cover')
     authors = AuthorColumn('Authors')
     class Meta:
         model = Book
@@ -106,7 +107,7 @@ class UserBookTable(tables.Table):
                  'thead': {
                      'class': 'thead-dark'
                  }}
-        fields = ("thumbnail", "title", "authors", "isbn")
+        fields = ("thumbnail_image", "title", "authors", "isbn")
 
 class UserTable(tables.Table):
     isbns = CheckedOutBooksColumn('Books')

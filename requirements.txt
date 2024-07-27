@@ -13,3 +13,5 @@ pillow
 python-dotenv
 gunicorn
 whitenoise
+opencv-python
+requests
