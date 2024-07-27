@@ -12,7 +12,7 @@ All post forms should live here. Separate post forms for each view.
 class PictureWidget(forms.widgets.Widget):
     def render(self, name, value, attrs=None, **kwargs):
         print(f"{name}, {value}, {attrs}, {kwargs}")
-        return format_html('<img class="text-center" src="{}" />', value)
+        return format_html('<img class="text-center" src="/{}" />', value)
 
 
 class ManualAddBookForm(ModelForm):
@@ -120,6 +120,7 @@ TagFormSet = formset_factory(BookDetailsTagForm, formset=BaseTagFormSet, extra=1
 
 class BookDetailsContdForm(ModelForm):
     isbn_image = ImageField(widget=PictureWidget(), label="")
+    thumbnail_image = ImageField(widget=PictureWidget(), label="")
 
     class Meta:
         model = Book
@@ -132,6 +133,7 @@ class BookDetailsContdForm(ModelForm):
         }
         labels = {
             "isbn": 'ISBN',
+            "thumbnail": 'Cover Image URL',
         }
 
 class NewUserForm(ModelForm):
