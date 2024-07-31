@@ -242,8 +242,6 @@ def new_book_manual(request):
             else:
                 info_form.save()
                 mBook = Book.objects.filter(isbn=info_form.cleaned_data["isbn"])[0]
-                update_isbn_image(mBook)
-                update_cover_image(mBook)
                 mBook.title = title_form.cleaned_data["title"]
                 author_list = []
                 for author_form in author_formset:
@@ -256,8 +254,10 @@ def new_book_manual(request):
                     if tag_form.cleaned_data and tag_form.cleaned_data['name'] != "":
                         tag_list.append(tag_form.cleaned_data['name'])
                 mBook.tags = tag_list
-
                 mBook.save()
+                update_isbn_image(mBook)
+                update_cover_image(mBook)
+
                 messages.info(request, "Added {} to your library".format(title_form.cleaned_data["title"]))
 
 
@@ -629,9 +629,9 @@ def clean_author_fields(request):
     return redirect("tools")
 
 def regenerate_images_helper():
-    book_barcodes = glob.glob('website/static/book_isbn_images/*')
-    book_covers = glob.glob('website/static/book_cover_images/*')
-    card_files = glob.glob('website/static/card_id_images/*')
+    book_barcodes = glob.glob('website/static/data/book_isbn_images/*')
+    book_covers = glob.glob('website/static/data/book_cover_images/*')
+    card_files = glob.glob('website/static/data/card_id_images/*')
     for f in book_barcodes:
         os.remove(f)
     for f in book_covers:
