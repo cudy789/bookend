@@ -242,8 +242,6 @@ def new_book_manual(request):
             else:
                 info_form.save()
                 mBook = Book.objects.filter(isbn=info_form.cleaned_data["isbn"])[0]
-                update_isbn_image(mBook)
-                update_cover_image(mBook)
                 mBook.title = title_form.cleaned_data["title"]
                 author_list = []
                 for author_form in author_formset:
@@ -256,8 +254,10 @@ def new_book_manual(request):
                     if tag_form.cleaned_data and tag_form.cleaned_data['name'] != "":
                         tag_list.append(tag_form.cleaned_data['name'])
                 mBook.tags = tag_list
-
                 mBook.save()
+                update_isbn_image(mBook)
+                update_cover_image(mBook)
+
                 messages.info(request, "Added {} to your library".format(title_form.cleaned_data["title"]))
 
 

@@ -103,3 +103,4 @@ src/cert.crt
 src/data/book_isbn_images/*
 src/data/card_id_images/*
 src/data/*.csv
+src/website/static/data/*
