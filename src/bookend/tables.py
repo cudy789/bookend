@@ -77,7 +77,7 @@ class BookTitleLinkColumn(tables.Column):
                     additional_text = ""
                     if self.additional_key != None:
                         if self.additional_key[0] == 'date_added':
-                            additional_text = f"{self.additional_key[1]}: {getattr(mBook, self.additional_key[0]).strftime('%d-%m-%Y')}"
+                            additional_text = f"{self.additional_key[1]}: {getattr(mBook, self.additional_key[0]).strftime('%m-%d-%Y')}"
                         else:
                             additional_text = f"{self.additional_key[1]}: {getattr(mBook, self.additional_key[0])}"
 
@@ -103,11 +103,11 @@ class UserNameLink(tables.Column):
                     additional_text = ""
                     if self.additional_key != None:
                         if self.additional_key[0] == 'date_added':
-                            additional_text = f"{self.additional_key[1]}: {getattr(mUser, self.additional_key[0]).strftime('%d-%m-%Y')}"
+                            additional_text = f"{self.additional_key[1]}: {getattr(mUser, self.additional_key[0]).strftime('%m-%d-%Y')}"
                         else:
                             additional_text = f"{self.additional_key[1]}: {getattr(mUser, self.additional_key[0])}"
 
-                    name = '<li><a href="/user/{}">{}</a>{}</li>'.format(card_id, s_name, additional_text)
+                    name = '<li><a href="/users/{}">{}</a>{}</li>'.format(card_id, s_name, additional_text)
                 else:
                     name = f"invalidCardID:{card_id}"
                 res += name

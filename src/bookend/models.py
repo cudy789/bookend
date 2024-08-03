@@ -58,7 +58,7 @@ class User(models.Model):
     isbns = models.JSONField(default=list, blank=True, null=True)
     card_id = models.CharField(max_length=50, verbose_name="Library Card Number")
     card_id_image = models.ImageField(blank=True, null=True, upload_to='website/static/data/card_id_images/')
-    lifetime_chcked_out = models.IntegerField(default=0)
+    lifetime_checked_out = models.IntegerField(default=0)
     date_added = models.DateTimeField(default=datetime.now, blank=True)
 
 class AppMetadata(models.Model):
