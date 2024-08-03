@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load static %}
+{% load django_bootstrap5 %}
+
+{% block title %}Sticker Wizard{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'website/background.css' %}">
+
+<div class="container">
+<div class="row">
+	<div class="col-2"></div>
+	<div class="col-8 text-center">
+		
+		<h1>Sticker Wizard</h1>
+        <br>
+		<p>Add ISBNs below separated by commas. Generates an Avery 5160 page of barcodes.</p>
+
+		<form method="post" class="form">
+			{% csrf_token %}
+			{% bootstrap_form form %}
+			{% bootstrap_button button_type="submit" content="Generate" %}
+		</form>
+
+	</div>
+	<div class="col-2"></div>
+
+
+</div>
+
+
+</div>
+{% endblock %}
+
+{% block footer %}
+
+{% endblock %}

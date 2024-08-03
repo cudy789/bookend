@@ -8,6 +8,7 @@ from django.core.files import File
 from api.ISBNQuery import ISBNQuery
 from api.Barcodes import Barcodes
 from api.CoverGeneration import gen_cover
+from api.StickerWizard import StickerWizard
 
 from django_tables2 import SingleTableView, LazyPaginator
 
@@ -606,6 +607,21 @@ def import_csv(request):
             messages.info(request, "Invalid form")
 
     return base_render(request, "pages/import-csv.html", {"form": UploadFileForm()})
+
+def sticker_wizard(request):
+    if request.method == "POST":
+        form = StickerWizardForm(request.POST)
+        if form.is_valid():
+            sticker_imgs = glob.glob('api/sticker_wizard_imgs/*')
+            for s in sticker_imgs:
+                os.remove(s)
+            isbn_list = form.cleaned_data['isbn_list'].replace(" ", "").replace("\n", "").replace("\r", "").split(",")
+            StickerWizard().AveryTemplate5160(isbn_list, "isbn_template.pdf")
+
+            return FileResponse(open("isbn_template.pdf", "rb"), as_attachment=True)
+
+    return base_render(request, "pages/sticker-wizard.html", {"form": StickerWizardForm()})
+
 
 def settings(request):
     if request.method == "POST":
