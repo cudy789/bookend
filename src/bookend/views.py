@@ -12,8 +12,8 @@ from api.StickerWizard import StickerWizard
 
 from django_tables2 import SingleTableView, LazyPaginator
 
-from .models import AppMetadata
-from .tables import BookTable, UserBookTable, UserTable
+from .models import AppMetadata, Stats
+from .tables import BookTable, UserBookTable, UserTable, StatsTable
 import zipfile
 import time
 import csv
@@ -35,6 +35,12 @@ class UserTableClass(SingleTableView):
     queryset = User.objects.all()
     template_name = "tables/user-catalog.html"
     SingleTableView.table_pagination = False
+
+def get_stats_obj() -> Stats:
+    if len(Stats.objects.all()) == 0:
+        mStats = Stats()
+        mStats.save()
+    return Stats.objects.all()[0]
 
 def get_app_title():
     if len(AppMetadata.objects.all()) == 0:
@@ -436,6 +442,13 @@ def check_out(request):
                         userList[0].isbns += [checkOutForm.cleaned_data["isbn"]]
                         userList[0].save()
                         desiredBookList[0].checkedOut += 1
+                        desiredBookList[0].total_checked_out += 1
+                        mStats = get_stats_obj()
+                        mStats.total_checked_out += 1
+                        mStats.most_recent_checked_out += [checkOutForm.cleaned_data["isbn"]]
+                        if len(mStats.most_recent_checked_out) > 5:
+                            mStats.most_recent_checked_out.pop(0)
+                        mStats.save()
                         desiredBookList[0].save()
                         messages.info(request, "{} checked out {}".format(userList[0].name, desiredBookList[0].title))
                         print("{} checked out {}".format(userList[0].name, desiredBookList[0].title))
@@ -493,6 +506,38 @@ def catalog(request):
                                                     "table":BookTable(Book.objects.all().order_by(ordered_by)),
                                                     "num_results": num_results})
 
+def stats(request):
+    # if request.method == "POST":
+    # Recalculate all stats
+    # BOOKS FIRST
+    mStats = get_stats_obj()
+    mStats.total_books = 0
+    mStats.total_checked_out = 0
+    mStats.most_checked_out_books = [b.isbn for b in Book.objects.order_by("-total_checked_out")[:5]]
+    mStats.books_with_most_copies = [b.isbn for b in Book.objects.order_by("-quantity")[:5]]
+    mStats.newest_books = [b.isbn for b in Book.objects.order_by("-date_added")[:5]]
+    book_list = Book.objects.all()
+    if book_list != None and len(book_list) > 0:
+        for b in book_list:
+            # TOTAL BOOKS
+            mStats.total_books += b.quantity
+            # TOTAL CHECKED OUT
+            mStats.total_checked_out += b.checkedOut
+
+
+    # USERS SECOND
+    mStats.total_users = 0
+    mStats.newest_users = [u.card_id for u in User.objects.order_by("-date_added")[:5]]
+    user_list = User.objects.all()
+    if user_list != None and len(user_list) > 0:
+        for u in user_list:
+            # TOTAL USERS
+            mStats.total_users += 1
+
+    mStats.save()
+
+    # return base_render(request, "pages/stats.html", {"table": StatsTable([get_stats_obj()])})
+    return base_render(request, "pages/stats.html", {"table": StatsTable([get_stats_obj()])})
 def report_helper():
     print("Running report helper")
     book_list = []

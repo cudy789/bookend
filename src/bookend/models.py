@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 
@@ -21,6 +23,13 @@ class Book(models.Model):
                                          MinValueValidator(0)
                                      ],
                                      blank=True, null=True)
+    total_checked_out = models.IntegerField(default=0,
+                                          verbose_name="Total Checked Out",
+                                          validators=[
+                                              MinValueValidator(0)
+                                          ],
+                                          blank=True, null=True)
+    date_added = models.DateTimeField(default=datetime.now, blank=True)
     subtitle = models.CharField(max_length=300, blank=True, null=True)
     publisher = models.CharField(max_length=100, blank=True, null=True)
     publishedDate = models.CharField(max_length=20, blank=True, null=True)
@@ -49,6 +58,19 @@ class User(models.Model):
     isbns = models.JSONField(default=list, blank=True, null=True)
     card_id = models.CharField(max_length=50, verbose_name="Library Card Number")
     card_id_image = models.ImageField(blank=True, null=True, upload_to='website/static/data/card_id_images/')
+    lifetime_chcked_out = models.IntegerField(default=0)
+    date_added = models.DateTimeField(default=datetime.now, blank=True)
 
 class AppMetadata(models.Model):
     app_name = models.CharField(max_length=100, default="Bookend")
+
+class Stats(models.Model):
+    total_books = models.IntegerField(default=0)
+    total_checked_out = models.IntegerField(default=0)
+    total_users = models.IntegerField(default=0)
+    users_with_most_books = models.JSONField(default=list, blank=True, null=True)
+    most_checked_out_books = models.JSONField(default=list, blank=True, null=True)
+    most_recent_checked_out = models.JSONField(default=list, blank=True, null=True)
+    newest_books = models.JSONField(default=list, blank=True, null=True)
+    newest_users = models.JSONField(default=list, blank=True, null=True)
+    books_with_most_copies = models.JSONField(default=list, blank=True, null=True)

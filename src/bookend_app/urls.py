@@ -46,6 +46,7 @@ urlpatterns = [
     path('library/import-csv', import_csv, name="importCSV"),
     path('library/sticker-wizard', sticker_wizard, name="stickerWizard"),
     path('settings', settings, name="settings"),
+    path('stats', stats, name="stats"),
     path('settings/clean-author-fields', clean_author_fields, name="cleanAuthorFields"),
     path('settings/generate-barcodes', generate_barcodes, name="generateIsbnBarcodes"),
 ]
