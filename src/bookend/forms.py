@@ -169,6 +169,8 @@ class SearchForm(forms.Form):
         labels = {
             "query": "title, author, category, ISBN, tags"
         }
+class StickerWizardForm(forms.Form):
+    isbn_list = forms.CharField(label="", widget=forms.Textarea(attrs={'autofocus': True}))
 
 class AppNameForm(forms.Form):
     name = forms.CharField(label="Website name")
