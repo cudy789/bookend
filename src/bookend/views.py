@@ -616,6 +616,11 @@ def sticker_wizard(request):
             for s in sticker_imgs:
                 os.remove(s)
             isbn_list = form.cleaned_data['isbn_list'].replace(" ", "").replace("\n", "").replace("\r", "").split(",")
+            for isbn in isbn_list:
+                if len(Book.objects.filter(isbn=isbn)) == 0:
+                    messages.info(request, f"ISBN {isbn} does not exist in your library")
+                    return base_render(request, "pages/sticker-wizard.html", {"form": form})
+
             StickerWizard().AveryTemplate5160(isbn_list, "isbn_template.pdf")
 
             return FileResponse(open("isbn_template.pdf", "rb"), as_attachment=True)
