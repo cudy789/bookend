@@ -14,6 +14,26 @@ class PictureWidget(forms.widgets.Widget):
         print(f"{name}, {value}, {attrs}, {kwargs}")
         return format_html('<img class="text-center" src="/{}" />', value)
 
+class CheckoutHistoryWidget(forms.widgets.Widget):
+    def render(self, name, value, attrs=None, **kwargs):
+        format_str = ""
+        format_vars = []
+        for isbn in value:
+
+            lookup_books = Book.objects.filter(isbn=isbn)
+            if len(lookup_books) > 0:
+                mBook = lookup_books[0]
+                s_title = mBook.title
+            else:
+                s_title = "invalid ISBN"
+
+            format_str += '<br><a href="/library/book/{}">{}</a>'
+            format_vars += [isbn, s_title]
+
+
+        # return format_html('<a href="{}>{}</a>', value, value)
+        print(f"CheckoutHistoryWidget: {name}, {value}, {attrs}, {kwargs}")
+        return format_html(format_str,*format_vars)
 
 class ManualAddBookForm(ModelForm):
     class Meta:
@@ -22,7 +42,6 @@ class ManualAddBookForm(ModelForm):
         labels = {
             "isbn": "ISBN",
         }
-
 
 class ISBNAddBookForm(ModelForm):
     class Meta:
@@ -49,8 +68,6 @@ class CheckInForm(forms.Form):
     class Meta:
         fields = ["card_id", "isbn",]
 
-
-
 class CheckOutForm(forms.Form):
     card_id = forms.CharField(label="Library Card Number",
                               widget=forms.TextInput(attrs={'id': 'card_id_checkout'}))
@@ -59,7 +76,7 @@ class CheckOutForm(forms.Form):
         fields = ["card_id", "isbn",]
 
 class UserDetailsISBNForm(forms.Form):
-    isbn = forms.CharField(label="ISBN", max_length=13, required=False)
+    isbn = forms.CharField(label="ISBN", max_length=18, required=False)
 
 class BaseISBNFormSet(BaseFormSet):
     def clean(self):
@@ -71,12 +88,14 @@ class BaseISBNFormSet(BaseFormSet):
                 continue
 
 ISBNFormSet = formset_factory(UserDetailsISBNForm, formset=BaseISBNFormSet, extra=1)
+ISBNHistFormSet = formset_factory(UserDetailsISBNForm, formset=BaseISBNFormSet, extra=1)
 
 class UserDetailsNameForm(forms.Form):
     name = forms.CharField(label="Name")
 
 class UserDetailsForm(ModelForm):
     card_id_image = ImageField(widget=PictureWidget(), label="")
+    checkout_history = forms.CharField(widget=CheckoutHistoryWidget(), label="Checkout history")
 
     class Meta:
         model = User

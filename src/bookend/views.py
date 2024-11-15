@@ -440,6 +440,8 @@ def check_out(request):
                     userList = User.objects.filter(card_id=checkOutForm.cleaned_data["card_id"])
                     if len(userList) > 0:
                         userList[0].isbns += [checkOutForm.cleaned_data["isbn"]]
+                        userList[0].checkout_history += [checkOutForm.cleaned_data["isbn"]]
+                        userList[0].lifetime_checked_out += 1
                         userList[0].save()
                         desiredBookList[0].checkedOut += 1
                         desiredBookList[0].total_checked_out += 1
