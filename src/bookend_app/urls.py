@@ -49,6 +49,8 @@ urlpatterns = [
     path('stats', stats, name="stats"),
     path('settings/clean-author-fields', clean_author_fields, name="cleanAuthorFields"),
     path('settings/generate-barcodes', generate_barcodes, name="generateIsbnBarcodes"),
+
+    path('botd', botd, name="bookOfTheDay")
 ]
 
 
