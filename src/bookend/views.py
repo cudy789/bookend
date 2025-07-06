@@ -9,6 +9,7 @@ from api.ISBNQuery import ISBNQuery
 from api.Barcodes import Barcodes
 from api.CoverGeneration import gen_cover
 from api.StickerWizard import StickerWizard
+from api.ImageToBMP import image_to_bmp
 
 from django_tables2 import SingleTableView, LazyPaginator
 
@@ -20,6 +21,7 @@ import csv
 import glob, os
 import requests
 from io import BytesIO
+import random
 
 
 
@@ -722,3 +724,24 @@ def generate_barcodes(request):
     messages.info(request, "Generated ISBN and library card barcodes for objects in the database")
 
     return redirect("settings")
+
+def botd(request):
+    """
+    Book of the day. Create & return a 800x480 .bmp image of a book cover.
+    """
+
+    mBook = random.choice(Book.objects.all())
+    print(f"mBook choice: {mBook.title}")
+    if mBook.thumbnail != None and len(mBook.thumbnail) > 0:
+        response = requests.get(mBook.thumbnail)
+        rv = BytesIO(response.content)
+    else:
+        title_list = str(mBook.title).split(" ")
+        initials = [title_list[0][0]]
+        if len(title_list) >= 2:
+            initials.append(title_list[-1][0])
+        rv = gen_cover(initials)
+
+    bmp_io = image_to_bmp(rv)
+
+    return HttpResponse(bmp_io, content_type='image/bmp')
