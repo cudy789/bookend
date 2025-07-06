@@ -106,9 +106,19 @@ def user_details(request, card_id):
     mUser = get_object_or_404(User, card_id=card_id)
 
     if request.method == "POST":
+        print("post")
         user_name_form = UserDetailsNameForm(request.POST)
         user_isbns_formset = ISBNFormSet(request.POST, prefix='isbns')
         user_details_form = UserDetailsForm(request.POST, instance=mUser) # only has the card_id
+        user_details_form.checkout_history = User.objects.filter(card_id=card_id)[0].checkout_history
+
+        print("user_name_form.is_valid(): {}".format(user_name_form.is_valid()))
+        print("user_isbns_formset.is_valid(): {}".format(user_isbns_formset.is_valid()))
+        print("user_details_form.is_valid(): {}".format(user_details_form.is_valid()))
+        print("user_details_form: {}".format(user_details_form.cleaned_data))
+        print("user_details_form.errors: {}".format(user_details_form.errors))
+
+
 
         if user_name_form.is_valid() and user_isbns_formset.is_valid() and user_details_form.is_valid():
             if card_id != user_details_form.cleaned_data['card_id']:
@@ -125,6 +135,7 @@ def user_details(request, card_id):
                 if isbn_form.cleaned_data and isbn_form.cleaned_data['isbn'] != "":
                     new_isbns_list.append(isbn_form.cleaned_data['isbn'])
                     print(isbn_form.cleaned_data['isbn'])
+            print("new_isbns_list: {}".format(new_isbns_list))
             mUser.isbns = new_isbns_list
             mUser.name = user_name_form.cleaned_data['name']
 
@@ -280,7 +291,7 @@ def new_book_isbn(request):
                 bookDict = {i:bookDict[i] for i in bookDict if i!='categories'}
 
             if bookDict is None:
-                messages.info(request, "Error, could not add book")
+                messages.info(request, "Error, could not find book online to automatically add, please enter manually")
             else:
 
                 book = Book.objects.filter(isbn=bookForm.cleaned_data["isbn"])

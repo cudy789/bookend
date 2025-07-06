@@ -60,7 +60,7 @@ class User(models.Model):
     card_id_image = models.ImageField(blank=True, null=True, upload_to='website/static/data/card_id_images/')
     lifetime_checked_out = models.IntegerField(default=0)
     date_added = models.DateTimeField(default=datetime.now, blank=True)
-    checkout_history = models.JSONField(default=list, blank=True, null=True)
+    checkout_history = models.JSONField(default=list, blank=True)
 
 class AppMetadata(models.Model):
     app_name = models.CharField(max_length=100, default="Bookend")
