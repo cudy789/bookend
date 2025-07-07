@@ -731,16 +731,19 @@ def botd(request):
     """
 
     mBook = random.choice(Book.objects.all())
+    response = requests.get(
+        f"https://covers.openlibrary.org/b/ISBN/{mBook.isbn}-L.jpg")  # Use the openlibrary book API - https://openlibrary.org/dev/docs/api/covers
+    while mBook.thumbnail == None or len(response.content) < 50:
+
+        mBook = random.choice(Book.objects.all())
+        response = requests.get(
+            f"https://covers.openlibrary.org/b/ISBN/{mBook.isbn}-L.jpg")  # Use the openlibrary book API - https://openlibrary.org/dev/docs/api/covers
+
+    print(f"len(response.content): {len(response.content)}")
+
     print(f"mBook choice: {mBook.title}")
-    if mBook.thumbnail != None and len(mBook.thumbnail) > 0:
-        response = requests.get(mBook.thumbnail)
-        rv = BytesIO(response.content)
-    else:
-        title_list = str(mBook.title).split(" ")
-        initials = [title_list[0][0]]
-        if len(title_list) >= 2:
-            initials.append(title_list[-1][0])
-        rv = gen_cover(initials)
+
+    rv = BytesIO(response.content)
 
     bmp_io = image_to_bmp(rv)
 
